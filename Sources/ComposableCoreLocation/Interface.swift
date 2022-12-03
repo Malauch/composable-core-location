@@ -276,7 +276,8 @@ public struct LocationManager {
 
   public var location: () -> Location?
 
-  public var locationServicesEnabled: () -> Bool
+	// It's async, because otherwise there is purple warning about blocking main thread.
+  public var locationServicesEnabled: () async -> Bool
 
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)

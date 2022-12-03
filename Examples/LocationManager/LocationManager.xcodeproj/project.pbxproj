@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A4CB7528293B573400C7C848 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = A4CB7527293B573400C7C848 /* ComposableArchitecture */; };
+		A4CB752A293B573400C7C848 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = A4CB7529293B573400C7C848 /* Dependencies */; };
 		CA17CC0F24720BBA00BDDF11 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA17CC0E24720BBA00BDDF11 /* SceneDelegate.swift */; };
 		CA17CC1124720BBA00BDDF11 /* LocationManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA17CC1024720BBA00BDDF11 /* LocationManagerView.swift */; };
 		CA17CC1324720BBB00BDDF11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA17CC1224720BBB00BDDF11 /* Assets.xcassets */; };
@@ -54,6 +56,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A4CB752B293B579500C7C848 /* composable-core-location */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "composable-core-location"; path = ../..; sourceTree = "<group>"; };
 		CA17CC0924720BBA00BDDF11 /* LocationManagerMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LocationManagerMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA17CC0E24720BBA00BDDF11 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		CA17CC1024720BBA00BDDF11 /* LocationManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManagerView.swift; sourceTree = "<group>"; };
@@ -76,7 +79,6 @@
 		CA74949F2474A5C800B13019 /* CommonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonTests.swift; sourceTree = "<group>"; };
 		CA7494A52474A65400B13019 /* LocationManagerDesktopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LocationManagerDesktopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA7494BE2474C14E00B13019 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DC74607E254B36DE00C10FA8 /* composable-core-location */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "composable-core-location"; path = ../..; sourceTree = "<group>"; };
 		DCBBE4A524747DCF00DF4AC4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -87,6 +89,8 @@
 			files = (
 				CA17CCB62474582000BDDF11 /* ComposableCoreLocation in Frameworks */,
 				CA17CC3924720BEB00BDDF11 /* ComposableArchitecture in Frameworks */,
+				A4CB7528293B573400C7C848 /* ComposableArchitecture in Frameworks */,
+				A4CB752A293B573400C7C848 /* Dependencies in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,7 +123,7 @@
 		CA17CC0024720BBA00BDDF11 = {
 			isa = PBXGroup;
 			children = (
-				DC74607E254B36DE00C10FA8 /* composable-core-location */,
+				A4CB752B293B579500C7C848 /* composable-core-location */,
 				CA74946A2474A4F100B13019 /* Common */,
 				CA7494962474A59000B13019 /* CommonTests */,
 				CA17CCBE24745B1000BDDF11 /* Desktop */,
@@ -221,6 +225,8 @@
 			packageProductDependencies = (
 				CA17CC3824720BEB00BDDF11 /* ComposableArchitecture */,
 				CA17CCB52474582000BDDF11 /* ComposableCoreLocation */,
+				A4CB7527293B573400C7C848 /* ComposableArchitecture */,
+				A4CB7529293B573400C7C848 /* Dependencies */,
 			);
 			productName = LocationManager;
 			productReference = CA17CC0924720BBA00BDDF11 /* LocationManagerMobile.app */;
@@ -318,6 +324,9 @@
 				Base,
 			);
 			mainGroup = CA17CC0024720BBA00BDDF11;
+			packageReferences = (
+				A4CB7526293B573400C7C848 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+			);
 			productRefGroup = CA17CC0A24720BBA00BDDF11 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -594,7 +603,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = LocationManagerDesktop/LocationManagerDesktop.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Desktop/LocationManagerDesktop.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -616,7 +625,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = LocationManagerDesktop/LocationManagerDesktop.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Desktop/LocationManagerDesktop.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -764,7 +773,28 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		A4CB7526293B573400C7C848 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.44.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		A4CB7527293B573400C7C848 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A4CB7526293B573400C7C848 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		A4CB7529293B573400C7C848 /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A4CB7526293B573400C7C848 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = Dependencies;
+		};
 		CA17CC3824720BEB00BDDF11 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ComposableArchitecture;

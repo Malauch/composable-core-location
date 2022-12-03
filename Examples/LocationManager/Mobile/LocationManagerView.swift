@@ -98,13 +98,15 @@ struct ContentView: View {
       let mockLocation = Location(
         coordinate: CLLocationCoordinate2D(latitude: 40.6501, longitude: -73.94958)
       )
-      let locationManagerSubject = PassthroughSubject<LocationManager.Action, Never>()
+//      let locationManagerSubject = PassthroughSubject<LocationManager.Action, Never>()
+			let (locationManagerStream, locationManagerContinuation) = AsyncStream<LocationManager.Action>.streamWithContinuation()
+			
       var locationManager = LocationManager.live
       locationManager.authorizationStatus = { .authorizedAlways }
-      locationManager.delegate = { locationManagerSubject.eraseToEffect() }
+			locationManager.delegate = { locationManagerStream }
       locationManager.locationServicesEnabled = { true }
       locationManager.requestLocation = {
-        .fireAndForget { locationManagerSubject.send(.didUpdateLocations([mockLocation])) }
+				locationManagerContinuation.yield(.didUpdateLocations([mockLocation]))
       }
 
       let appView = LocationManagerView(

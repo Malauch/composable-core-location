@@ -16,6 +16,7 @@ extension DependencyValues {
 }
 
 extension LocationManager: DependencyKey {
-    public static let testValue = Self.failing
-    public static var liveValue = Self.live
+	public static var liveValue = Self.live
+	public static var previewValue = Self.noop
+	public static let testValue = Self.failing
 }

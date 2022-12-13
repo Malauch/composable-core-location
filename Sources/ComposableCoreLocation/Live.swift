@@ -2,7 +2,6 @@ import Combine
 import CoreLocation
 
 extension LocationManager {
-	static let manager = CLLocationManager()
 	
   /// The live implementation of the `LocationManager` interface. This implementation is capable of
   /// creating real `CLLocationManager` instances, listening to its delegate methods, and invoking
@@ -18,6 +17,8 @@ extension LocationManager {
   /// )
   /// ```
 	public static let live: Self = {
+		let manager = CLLocationManager()
+		
     return Self(
       accuracyAuthorization: {
         #if (compiler(>=5.3) && !(os(macOS) || targetEnvironment(macCatalyst))) || compiler(>=5.3.1)

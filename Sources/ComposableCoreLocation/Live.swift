@@ -1,5 +1,6 @@
 import Combine
 import CoreLocation
+import Dependencies
 
 extension LocationManager {
 	
@@ -17,7 +18,9 @@ extension LocationManager {
   /// )
   /// ```
 	public static let live: Self = {
-		let manager = CLLocationManager()
+		// Using @Dependency here it's workaround for not responding delegate:
+		// https://github.com/pointfreeco/swift-composable-architecture/discussions/1743
+		@Dependency(\.coreLocationManager) var manager
 		
     return Self(
       accuracyAuthorization: {
@@ -38,14 +41,18 @@ extension LocationManager {
       },
       delegate: {
         AsyncStream { continuation in
-          let delegate = LocationManagerDelegate(continuation: continuation)
-          manager.delegate = delegate
-          continuation.onTermination = { [delegate] _ in
-            _ = delegate
-          }
-        }
-      },
-      dismissHeadingCalibrationDisplay: {
+					// Setup delegate on MainActor it's workaround for not responding delegate:
+					// https://github.com/pointfreeco/swift-composable-architecture/discussions/1743
+					Task { @MainActor in
+						let delegate = LocationManagerDelegate(continuation: continuation)
+						manager.delegate = delegate
+						continuation.onTermination = { [delegate] _ in
+							_ = delegate
+						}
+					}
+				}
+			},
+			dismissHeadingCalibrationDisplay: {
         #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
           manager.dismissHeadingCalibrationDisplay()
         #endif
@@ -346,4 +353,16 @@ private class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
       self.continuation.yield(.didVisit(Visit(visit: visit)))
     }
   #endif
+}
+
+
+extension CLLocationManager: DependencyKey {
+	public static var liveValue = CLLocationManager()
+}
+
+fileprivate extension DependencyValues {
+	var coreLocationManager: CLLocationManager {
+		get { self[CLLocationManager.self] }
+		set { self[CLLocationManager.self] = newValue}
+	}
 }

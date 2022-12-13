@@ -1,6 +1,7 @@
 import Combine
 import ComposableArchitecture
 import CoreLocation
+import Dependencies
 
 extension LocationManager {
   /// The live implementation of the `LocationManager` interface. This implementation is capable of
@@ -16,14 +17,21 @@ extension LocationManager {
   ///   )
   /// )
   /// ```
-  public static var live: Self {
-    let manager = CLLocationManager()
-
-    let delegate = Effect<Action, Never>.run { subscriber in
-      let delegate = LocationManagerDelegate(subscriber)
-      manager.delegate = delegate
-
-      return AnyCancellable {
+	public static var live: Self = {
+		// CLLocationManager has to be get from DependencyValues.. but why???
+		@Dependency(\.coreLocationManager) var manager
+		
+		let delegate = Effect<Action, Never>.run { subscriber in
+			let delegate = LocationManagerDelegate(subscriber)
+		
+			// Delegate has to be set on MainActor. Don't know why, but otherwise doesn't work.
+			Task {
+				await MainActor.run {
+					manager.delegate = delegate
+				}
+			}
+			
+			return AnyCancellable {
         _ = delegate
       }
     }
@@ -243,7 +251,7 @@ extension LocationManager {
         }
       }
     )
-  }
+  }()
 }
 
 private class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {

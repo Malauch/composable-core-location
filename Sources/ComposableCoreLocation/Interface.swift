@@ -256,7 +256,7 @@ public struct LocationManager {
 
   public var authorizationStatus: () -> CLAuthorizationStatus
 
-  public var delegate: @Sendable () -> AsyncStream<Action>
+  public var delegate: @MainActor @Sendable () -> AsyncStream<Action>
 
   @available(macOS, unavailable)
   @available(tvOS, unavailable)
@@ -296,7 +296,7 @@ public struct LocationManager {
 
   public var requestTemporaryFullAccuracyAuthorization: @Sendable (String) async throws -> Void
 
-  public var set: @Sendable (Properties) async -> Void
+  public var set: @MainActor @Sendable (Properties) async -> Void
 
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
@@ -355,7 +355,7 @@ public struct LocationManager {
     pausesLocationUpdatesAutomatically: Bool? = nil,
     showsBackgroundLocationIndicator: Bool? = nil
   ) async {
-    await self.set(
+		await self.set(
       Properties(
         activityType: activityType,
         allowsBackgroundLocationUpdates: allowsBackgroundLocationUpdates,

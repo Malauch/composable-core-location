@@ -40,15 +40,11 @@ extension LocationManager {
         return CLLocationManager.authorizationStatus()
       },
       delegate: {
-        AsyncStream { continuation in
-					// Setup delegate on MainActor it's workaround for not responding delegate:
-					// https://github.com/pointfreeco/swift-composable-architecture/discussions/1743
-					Task { @MainActor in
-						let delegate = LocationManagerDelegate(continuation: continuation)
-						manager.delegate = delegate
-						continuation.onTermination = { [delegate] _ in
-							_ = delegate
-						}
+				AsyncStream { continuation in
+					let delegate = LocationManagerDelegate(continuation: continuation)
+					manager.delegate = delegate
+					continuation.onTermination = { [delegate] _ in
+						_ = delegate
 					}
 				}
 			},

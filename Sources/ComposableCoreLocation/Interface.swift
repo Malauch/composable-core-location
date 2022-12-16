@@ -368,6 +368,30 @@ public struct LocationManager {
       )
     )
   }
+	
+	/// Updates the given properties of a uniquely identified `CLLocationManager`.
+	@available(iOS, unavailable)
+	@available(macOS, unavailable)
+	@available(tvOS, unavailable)
+	@Sendable public func set(
+		activityType: CLActivityType? = nil,
+		allowsBackgroundLocationUpdates: Bool? = nil,
+		desiredAccuracy: CLLocationAccuracy? = nil,
+		distanceFilter: CLLocationDistance? = nil,
+		headingFilter: CLLocationDegrees? = nil,
+		headingOrientation: CLDeviceOrientation? = nil
+	) async {
+		await self.set(
+			Properties(
+				activityType: activityType,
+				allowsBackgroundLocationUpdates: allowsBackgroundLocationUpdates,
+				desiredAccuracy: desiredAccuracy,
+				distanceFilter: distanceFilter,
+				headingFilter: headingFilter,
+				headingOrientation: headingOrientation
+			)
+		)
+	}
 }
 
 extension LocationManager {

@@ -251,10 +251,68 @@ public struct LocationManager {
       self.error = error as NSError
     }
   }
+	
+	init(
+		accuracyAuthorization: @Sendable @escaping () async -> AccuracyAuthorization?,
+		authorizationStatus: @Sendable @escaping () async -> CLAuthorizationStatus,
+		delegate: @Sendable @escaping () -> AsyncStream<Action>,
+		dismissHeadingCalibrationDisplay: @Sendable @escaping () async -> Void,
+		heading: @Sendable @escaping () async -> Heading?,
+		headingAvailable: @Sendable @escaping () async -> Bool,
+		isRangingAvailable: @Sendable @escaping () async -> Bool,
+		location: @Sendable @escaping () async -> Location?,
+		locationServicesEnabled: @Sendable @escaping () async -> Bool,
+		maximumRegionMonitoringDistance: @Sendable @escaping () async -> CLLocationDistance,
+		monitoredRegions: @Sendable @escaping () async -> Set<Region>,
+		requestAlwaysAuthorization: @Sendable @escaping () async -> Void,
+		requestLocation: @Sendable @escaping () async -> Void,
+		requestWhenInUseAuthorization: @Sendable @escaping () async -> Void,
+		requestTemporaryFullAccuracyAuthorization: @Sendable @escaping (String) async throws -> Void,
+		set: @Sendable @escaping (Properties) async -> Void,
+		significantLocationChangeMonitoringAvailable: @escaping () async -> Bool,
+		startMonitoringForRegion: @Sendable @escaping (Region) async -> Void,
+		startMonitoringSignificantLocationChanges: @Sendable @escaping () async -> Void,
+		startMonitoringVisits: @Sendable @escaping () async -> Void,
+		startUpdatingHeading: @Sendable @escaping () async -> Void,
+		startUpdatingLocation: @Sendable @escaping () async -> Void,
+		stopMonitoringForRegion: @Sendable @escaping (Region) async -> Void,
+		stopMonitoringSignificantLocationChanges: @Sendable @escaping () async -> Void,
+		stopMonitoringVisits: @Sendable @escaping () async -> Void,
+		stopUpdatingHeading: @Sendable @escaping () async -> Void,
+		stopUpdatingLocation: @Sendable @escaping () async -> Void
+	) {
+		self.accuracyAuthorization = accuracyAuthorization
+		self.authorizationStatus = authorizationStatus
+		self.delegate = delegate
+		self.dismissHeadingCalibrationDisplay = dismissHeadingCalibrationDisplay
+		self.heading = heading
+		self.headingAvailable = headingAvailable
+		self._isRangingAvailable = isRangingAvailable
+		self.location = location
+		self.locationServicesEnabled = locationServicesEnabled
+		self._maximumRegionMonitoringDistance = maximumRegionMonitoringDistance
+		self._monitoredRegions = monitoredRegions
+		self.requestAlwaysAuthorization = requestAlwaysAuthorization
+		self.requestLocation = requestLocation
+		self.requestWhenInUseAuthorization = requestWhenInUseAuthorization
+		self.requestTemporaryFullAccuracyAuthorization = requestTemporaryFullAccuracyAuthorization
+		self.set = set
+		self._significantLocationChangeMonitoringAvailable = significantLocationChangeMonitoringAvailable
+		self._startMonitoringForRegion = startMonitoringForRegion
+		self._startMonitoringSignificantLocationChanges = startMonitoringSignificantLocationChanges
+		self._startMonitoringVisits = startMonitoringVisits
+		self._startUpdatingHeading = startUpdatingHeading
+		self._startUpdatingLocation = startUpdatingLocation
+		self._stopMonitoringForRegion = stopMonitoringForRegion
+		self._stopMonitoringSignificantLocationChanges = stopMonitoringSignificantLocationChanges
+		self._stopMonitoringVisits = stopMonitoringVisits
+		self._stopUpdatingHeading = stopUpdatingHeading
+		self.stopUpdatingLocation = stopUpdatingLocation
+	}
 
-  public var accuracyAuthorization: () -> AccuracyAuthorization?
+  public var accuracyAuthorization: @Sendable () async -> AccuracyAuthorization?
 
-  public var authorizationStatus: () -> CLAuthorizationStatus
+  public var authorizationStatus: @Sendable () async -> CLAuthorizationStatus
 
   public var delegate: @MainActor @Sendable () -> AsyncStream<Action>
 
@@ -264,28 +322,40 @@ public struct LocationManager {
 
   @available(macOS, unavailable)
   @available(tvOS, unavailable)
-  public var heading: () -> Heading?
+  public var heading: @Sendable () async -> Heading?
 
   @available(tvOS, unavailable)
-  public var headingAvailable: () -> Bool
+  public var headingAvailable: @Sendable () async -> Bool
 
   @available(macOS, unavailable)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public var isRangingAvailable: () -> Bool
+	public var isRangingAvailable: @Sendable () async -> Bool {
+		get { self._isRangingAvailable }
+		set { self._isRangingAvailable = newValue }
+	}
+	private var _isRangingAvailable: @Sendable () async -> Bool
 
-  public var location: () -> Location?
+  public var location: @Sendable () async -> Location?
 
 	// It's async, because otherwise there is purple warning about blocking main thread.
-  public var locationServicesEnabled: () async -> Bool
+  public var locationServicesEnabled: @Sendable () async -> Bool
 
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public var maximumRegionMonitoringDistance: () -> CLLocationDistance
+	public var maximumRegionMonitoringDistance: @Sendable () async -> CLLocationDistance {
+		get { self._maximumRegionMonitoringDistance }
+		set { self._maximumRegionMonitoringDistance = newValue }
+	}
+	private var _maximumRegionMonitoringDistance: @Sendable () async -> CLLocationDistance
 
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public var monitoredRegions: () -> Set<Region>
+	public var monitoredRegions: @Sendable () async -> Set<Region> {
+		get { self._monitoredRegions }
+		set { self._monitoredRegions = newValue }
+	}
+	private var _monitoredRegions: @Sendable () async -> Set<Region>
 
   @available(tvOS, unavailable)
   public var requestAlwaysAuthorization: @Sendable () async -> Void
@@ -298,46 +368,88 @@ public struct LocationManager {
 
   public var set: @MainActor @Sendable (Properties) async -> Void
 
+	
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public var significantLocationChangeMonitoringAvailable: () -> Bool
+	public var significantLocationChangeMonitoringAvailable: () async -> Bool {
+		get { self._significantLocationChangeMonitoringAvailable }
+		set { self._significantLocationChangeMonitoringAvailable = newValue }
+	}
+	private var _significantLocationChangeMonitoringAvailable: () async -> Bool
+
+	
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+	public var startMonitoringForRegion: @Sendable (Region) async -> Void {
+		get { self._startMonitoringForRegion }
+		set { self._startMonitoringForRegion = newValue }
+	}
+	private var _startMonitoringForRegion: @Sendable (Region) async -> Void
 
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public var startMonitoringForRegion: @Sendable (Region) async -> Void
-
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  public var startMonitoringSignificantLocationChanges: @Sendable () async -> Void
+	public var startMonitoringSignificantLocationChanges: @Sendable () async -> Void {
+		get { self._startMonitoringSignificantLocationChanges }
+		set { self._startMonitoringSignificantLocationChanges = newValue }
+	}
+	private var _startMonitoringSignificantLocationChanges: @Sendable () async -> Void
 
   @available(macOS, unavailable)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public var startMonitoringVisits: @Sendable () async -> Void
+	public var startMonitoringVisits: @Sendable () async -> Void {
+		get { self._startMonitoringVisits }
+		set { self._startMonitoringVisits = newValue }
+	}
+	private var _startMonitoringVisits: @Sendable () async -> Void
 
   @available(macOS, unavailable)
   @available(tvOS, unavailable)
-  public var startUpdatingHeading: @Sendable () async -> Void
+	public var startUpdatingHeading: @Sendable () async -> Void {
+		get { self._startUpdatingHeading }
+		set { self._startUpdatingHeading = newValue }
+	}
+	private var _startUpdatingHeading: @Sendable () async -> Void
 
   @available(tvOS, unavailable)
-  public var startUpdatingLocation: @Sendable () async -> Void
+	public var startUpdatingLocation: @Sendable () async -> Void {
+		get { self._startUpdatingLocation }
+		set { self._startUpdatingLocation = newValue }
+	}
+	private var _startUpdatingLocation: @Sendable () async -> Void
 
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public var stopMonitoringForRegion: @Sendable (Region) async -> Void
+	public var stopMonitoringForRegion: @Sendable (Region) async -> Void {
+		get { self._stopMonitoringForRegion }
+		set { self._stopMonitoringForRegion = newValue }
+	}
+	private var _stopMonitoringForRegion: @Sendable (Region) async -> Void
 
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public var stopMonitoringSignificantLocationChanges: @Sendable () async -> Void
+	public var stopMonitoringSignificantLocationChanges: @Sendable () async -> Void {
+		get { self._stopMonitoringSignificantLocationChanges }
+		set { self._stopMonitoringSignificantLocationChanges = newValue }
+	}
+	private var _stopMonitoringSignificantLocationChanges: @Sendable () async -> Void
 
   @available(macOS, unavailable)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public var stopMonitoringVisits: @Sendable () async -> Void
+	private var stopMonitoringVisits: @Sendable () async -> Void {
+		get { self._stopMonitoringVisits }
+		set { self._stopMonitoringVisits = newValue }
+	}
+	private var _stopMonitoringVisits: @Sendable () async -> Void
 
   @available(macOS, unavailable)
   @available(tvOS, unavailable)
-  public var stopUpdatingHeading: @Sendable () async -> Void
+	public var stopUpdatingHeading: @Sendable () async -> Void {
+		get { self._stopUpdatingHeading }
+		set { self._stopUpdatingHeading = newValue }
+	}
+	private var _stopUpdatingHeading: @Sendable () async -> Void
 
   public var stopUpdatingLocation: @Sendable () async -> Void
 
@@ -416,15 +528,23 @@ extension LocationManager {
     @available(tvOS, unavailable)
     var headingOrientation: CLDeviceOrientation? = nil
 
-    @available(macOS, unavailable)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    var pausesLocationUpdatesAutomatically: Bool? = nil
+		@available(macOS, unavailable)
+		@available(tvOS, unavailable)
+		@available(watchOS, unavailable)
+		var pausesLocationUpdatesAutomatically: Bool? {
+			get { self._pausesLocationUpdatesAutomatically }
+			set { self._pausesLocationUpdatesAutomatically = newValue }
+		}
+		private var _pausesLocationUpdatesAutomatically: Bool? = nil
 
-    @available(macOS, unavailable)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    var showsBackgroundLocationIndicator: Bool? = nil
+		@available(macOS, unavailable)
+		@available(tvOS, unavailable)
+		@available(watchOS, unavailable)
+		var showsBackgroundLocationIndicator: Bool? {
+			get { self._showsBackgroundLocationIndicator }
+			set { self._showsBackgroundLocationIndicator = newValue }
+		}
+		private var _showsBackgroundLocationIndicator: Bool? = nil
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
       var isEqual = true

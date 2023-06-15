@@ -37,7 +37,7 @@ extension LocationManager {
             return manager.authorizationStatus
           }
         #endif
-        return CLLocationManager.authorizationStatus()
+        return manager.authorizationStatus
       },
       delegate: {
 				AsyncStream { continuation in
@@ -75,7 +75,7 @@ extension LocationManager {
         #endif
       },
       location: { manager.location.map(Location.init(rawValue:)) },
-      locationServicesEnabled: CLLocationManager.locationServicesEnabled,
+			locationServicesEnabled: { CLLocationManager.locationServicesEnabled() } ,
       maximumRegionMonitoringDistance: {
         #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
           return manager.maximumRegionMonitoringDistance

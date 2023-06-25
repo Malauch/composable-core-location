@@ -209,3 +209,9 @@ extension Location: Codable {
     case verticalAccuracy
   }
 }
+
+extension Location {
+	public static let mockLocation = Location(
+		coordinate: CLLocationCoordinate2D(latitude: 40.6501, longitude: -73.94958)
+	)
+}

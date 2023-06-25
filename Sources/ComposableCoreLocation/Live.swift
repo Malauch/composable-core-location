@@ -352,8 +352,11 @@ private class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
 }
 
 
+// Fileprivate `CLLocationManager` instance as a dependency to workaround the bug mentioned in line #20.
 extension CLLocationManager: DependencyKey {
 	public static var liveValue = CLLocationManager()
+	public static var testValue = CLLocationManager()
+	public static var previewValue = CLLocationManager()
 }
 
 fileprivate extension DependencyValues {

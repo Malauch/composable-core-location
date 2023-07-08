@@ -3,19 +3,19 @@ import CoreLocation
 import Contacts
 
 public struct Placemark: Sendable, Hashable, Codable {
-	let name: String?
-	let thoroughfare: String?
-	let subThoroughfare: String?
-	let locality: String?
-	let subLocality: String?
-	let administrativeArea: String?
-	let subAdministrativeArea: String?
-	let postalCode: String?
-	let isoCountryCode: String?
-	let country: String?
-	let inlandWater: String?
-	let ocean: String?
-	let areasOfInterest: [String]?
+	public let name: String?
+	public let thoroughfare: String?
+	public let subThoroughfare: String?
+	public let locality: String?
+	public let subLocality: String?
+	public let administrativeArea: String?
+	public let subAdministrativeArea: String?
+	public let postalCode: String?
+	public let isoCountryCode: String?
+	public let country: String?
+	public let inlandWater: String?
+	public let ocean: String?
+	public let areasOfInterest: [String]?
 	
 	public init(
 		name: String? = nil,

@@ -2,7 +2,7 @@ import CoreLocation
 import Foundation
 
 public struct GeocoderClient {
-	public var reverseGeocodeLocation: @Sendable (Location) async throws -> Placemark?
+	public var reverseGeocodeLocation: @Sendable (Location) async throws -> Placemark
 	public var geocodeAddressString: @Sendable (String, CLRegion?, Locale?) async throws -> [Placemark]
 	
 	public func getAddressCoordinates(

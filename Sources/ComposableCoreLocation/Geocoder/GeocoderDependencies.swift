@@ -5,7 +5,7 @@ extension GeocoderClient: DependencyKey {
 }
 
 extension DependencyValues {
-	var geocoder: GeocoderClient {
+	public var geocoder: GeocoderClient {
 		get { self[GeocoderClient.self] }
 		set { self[GeocoderClient.self] = newValue }
 	}

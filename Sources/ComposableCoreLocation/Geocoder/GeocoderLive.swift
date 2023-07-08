@@ -8,7 +8,7 @@ extension GeocoderClient {
 			if let placemark = try await geocoder.reverseGeocodeLocation(location.rawValue).first {
 				return Placemark(rawValue: placemark)
 			} else {
-				return nil
+				throw NoPlacemarkFound()
 			}
 			
 		},
@@ -21,4 +21,10 @@ extension GeocoderClient {
 			).map(Placemark.init(rawValue:))
 		}
 	)
+}
+
+extension GeocoderClient {
+	public struct NoPlacemarkFound: Error, LocalizedError {
+		let errorDescription = "No placemark found"
+	}
 }

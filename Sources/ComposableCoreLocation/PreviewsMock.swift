@@ -12,11 +12,15 @@ extension LocationManager {
 	
 	/// Helpers for creating basic mock version of `LocationManager` and exposes `delegateContinuation` for firing delegate actins during tests.
 	public static func mock() -> (locationManager: Self, delegateContinuation: AsyncStream<LocationManager.Action>.Continuation) {
-		let (locationManagerStream, locationManagerContinuation) = AsyncStream<LocationManager.Action>.streamWithContinuation()
+		let (locationManagerStream, locationManagerContinuation) = AsyncStream<LocationManager.Action>.makeStream()
 		
 		var locationManager = LocationManager.live
-		locationManager.authorizationStatus = { .authorizedAlways }
-		locationManager.delegate = { locationManagerStream }
+		locationManager.authorizationStatus = {
+			.authorizedAlways
+		}
+		locationManager.delegate = {
+			locationManagerStream
+		}
 		locationManager.locationServicesEnabled = { true }
 		locationManager.requestLocation = {
 			locationManagerContinuation.yield(.didUpdateLocations([.mockLocation]))

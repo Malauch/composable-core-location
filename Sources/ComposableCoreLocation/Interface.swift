@@ -255,7 +255,7 @@ public struct LocationManager {
 	init(
 		accuracyAuthorization: @Sendable @escaping () async -> AccuracyAuthorization?,
 		authorizationStatus: @Sendable @escaping () async -> CLAuthorizationStatus,
-		delegate: @Sendable @escaping () -> AsyncStream<Action>,
+		delegate: @Sendable @escaping () async -> AsyncStream<Action>,
 		dismissHeadingCalibrationDisplay: @Sendable @escaping () async -> Void,
 		heading: @Sendable @escaping () async -> Heading?,
 		headingAvailable: @Sendable @escaping () async -> Bool,
@@ -314,7 +314,7 @@ public struct LocationManager {
 
   public var authorizationStatus: @Sendable () async -> CLAuthorizationStatus
 
-  public var delegate: @MainActor @Sendable () -> AsyncStream<Action>
+  public var delegate: @MainActor @Sendable () async -> AsyncStream<Action>
 
   @available(macOS, unavailable)
   @available(tvOS, unavailable)

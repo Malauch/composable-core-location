@@ -2,9 +2,9 @@ import ComposableArchitecture
 import MapKit
 
 public struct LocalSearchClient {
-  public var search: (MKLocalSearch.Request) -> Effect<LocalSearchResponse, Error>
+  public var search: @Sendable (MKLocalSearch.Request) async throws-> LocalSearchResponse
 
-  public init(search: @escaping (MKLocalSearch.Request) -> Effect<LocalSearchResponse, Error>) {
+  public init(search: @Sendable @escaping (MKLocalSearch.Request) async throws -> LocalSearchResponse) {
     self.search = search
   }
 

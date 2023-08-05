@@ -14,12 +14,18 @@ extension LocationManager {
 	public static func mock() -> (locationManager: Self, delegateContinuation: AsyncStream<LocationManager.Action>.Continuation) {
 		let (locationManagerStream, locationManagerContinuation) = AsyncStream<LocationManager.Action>.makeStream()
 		
-		var locationManager = LocationManager.live
+		var locationManager = LocationManager.live()
 		locationManager.authorizationStatus = {
 			.authorizedAlways
 		}
 		locationManager.delegate = {
-			locationManagerStream
+			locationManagerContinuation.onTermination = { [locationManagerStream] _ in
+				_ = locationManagerStream
+			}
+			
+			
+			
+			return locationManagerStream
 		}
 		locationManager.locationServicesEnabled = { true }
 		locationManager.requestLocation = {
@@ -27,16 +33,5 @@ extension LocationManager {
 		}
 		
 		return (locationManager: locationManager, delegateContinuation: locationManagerContinuation)
-	}
-}
-
-
-extension AsyncStream {
-	public static func streamWithContinuation(
-		_ elementType: Element.Type = Element.self,
-		bufferingPolicy limit: Continuation.BufferingPolicy = .unbounded
-	) -> (stream: Self, continuation: Continuation) {
-		var continuation: Continuation!
-		return (Self(elementType, bufferingPolicy: limit) { continuation = $0 }, continuation)
 	}
 }

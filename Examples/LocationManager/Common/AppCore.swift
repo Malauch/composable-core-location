@@ -52,7 +52,7 @@ public enum AppAction: Equatable {
 	case categoryButtonTapped(MKPointOfInterestCategory)
 	case currentLocationButtonTapped
 	case dismissAlertButtonTapped
-	case localSearchResponse(Result<LocalSearchResponse, LocalSearchClient.Error>)
+	case localSearchResponse(TaskResult<LocalSearchResponse>)
 	case locationManager(LocationManager.Action)
 	case onAppear
 	case onDisappear
@@ -92,11 +92,10 @@ public let appReducer = AnyReducer<AppState, AppAction, AppEnvironment> { state,
 		if let region = state.region?.asMKCoordinateRegion {
 			request.region = region
 		}
-		return environment.localSearch
-			.search(request)
-			.catchToEffect()
-			.map(AppAction.localSearchResponse)
-			.cancellable(id: CancelSearchId(), cancelInFlight: true)
+		return .run { send in
+			await send(.localSearchResponse(TaskResult { try await environment.localSearch.search(request) }))
+		}
+		.cancellable(id: CancelSearchId(), cancelInFlight: true)
 		
 	case .currentLocationButtonTapped:
 			return .run { send in
@@ -104,7 +103,7 @@ public let appReducer = AnyReducer<AppState, AppAction, AppEnvironment> { state,
 					await send(.updateAlert(TextState("Location services are turned off.")))
 					return
 				}
-				switch environment.locationManager.authorizationStatus() {
+				switch await environment.locationManager.authorizationStatus() {
 				case .notDetermined:
 //					state.isRequestingCurrentLocation = true
 #if os(macOS)
@@ -153,7 +152,7 @@ public let appReducer = AnyReducer<AppState, AppAction, AppEnvironment> { state,
 		
 	case .onAppear:
 		return .run { send in
-			for await item in environment.locationManager.delegate() {
+			for await item in await environment.locationManager.delegate() {
 				await send(.locationManager(item))
 			}
 		}
@@ -173,10 +172,9 @@ public let appReducer = AnyReducer<AppState, AppAction, AppEnvironment> { state,
 		let request = MKLocalSearch.Request()
 		request.pointOfInterestFilter = MKPointOfInterestFilter(including: [category])
 		request.region = region
-		return environment.localSearch
-			.search(request)
-			.catchToEffect()
-			.map(AppAction.localSearchResponse)
+		return .run { send in
+			await send(.localSearchResponse(TaskResult { try await environment.localSearch.search(request) }))
+		}
 			.cancellable(id: CancelSearchId(), cancelInFlight: true)
 		
 	case let .updateAlert(textState):

@@ -17,10 +17,8 @@ extension LocationManager {
   ///   )
   /// )
   /// ```
-	public static let live: Self = {
-		// Using @Dependency here it's workaround for not responding delegate:
-		// https://github.com/pointfreeco/swift-composable-architecture/discussions/1743
-		@Dependency(\.coreLocationManager) var manager
+	public static func live() -> Self {
+		let manager = CLLocationManager()
 		
     return Self(
       accuracyAuthorization: {
@@ -218,7 +216,7 @@ extension LocationManager {
         #endif
       }
     )
-  }()
+  }
 }
 
 private class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
@@ -227,6 +225,10 @@ private class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
   init(continuation: AsyncStream<LocationManager.Action>.Continuation) {
     self.continuation = continuation
   }
+	
+	deinit {
+		print("LocationManager Deinit")
+	}
 
   func locationManager(
     _ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus
@@ -355,8 +357,6 @@ private class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
 // Fileprivate `CLLocationManager` instance as a dependency to workaround the bug mentioned in line #20.
 extension CLLocationManager: DependencyKey {
 	public static var liveValue = CLLocationManager()
-	public static var testValue = CLLocationManager()
-	public static var previewValue = CLLocationManager()
 }
 
 fileprivate extension DependencyValues {

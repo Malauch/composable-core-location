@@ -55,12 +55,12 @@ extension LocationClient {
 }
 
 public class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
-	typealias Continuation = AsyncStream<LocationClient.Action>.Continuation
+	public typealias Continuation = AsyncStream<LocationClient.Action>.Continuation
 	
-  var continuation: Continuation?
-	var didChangeAuthorization: (Continuation?, CLAuthorizationStatus) -> Void
-	var didFailWithError: (Continuation?, Error) -> Void
-	var didUpdateLocation: (Continuation?, [CLLocation]) -> Void
+  public var continuation: Continuation?
+	public var didChangeAuthorization: (Continuation?, CLAuthorizationStatus) -> Void
+	public var didFailWithError: (Continuation?, Error) -> Void
+	public var didUpdateLocation: (Continuation?, [CLLocation]) -> Void
 	
 	init(
 		continuation: AsyncStream<LocationClient.Action>.Continuation? = nil,

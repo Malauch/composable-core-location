@@ -1,4 +1,5 @@
 import CoreLocation
+import Dependencies
 
 extension LocationClient {
 	static let noop: Self = {
@@ -38,6 +39,23 @@ extension LocationClient {
 	
 	public static let mock: Self = {
 		Self.mockClientWithContinuation().locationClient
+	}()
+	
+	public static let mockUsingDelegate: Self = {
+		@Dependency(\.locationManagerDelegate) var delegate
+		
+		return Self(
+			authorizationStatus: { .authorizedWhenInUse },
+			delegate:  {
+				AsyncStream { continuation in
+					delegate.continuation = continuation
+				}
+			},
+			location: { .mockFluid() },
+			locationServicesEnabled: { true },
+			requestLocation: { delegate.locationManager(.init(), didUpdateLocations: [Location.mockFluid().rawValue]) },
+			requestWhenInUseAuthorization: { }
+		)
 	}()
 	
 	public static let mockFromLive: Self = {

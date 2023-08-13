@@ -3,7 +3,7 @@ import CoreLocation
 
 /// A wrapper around Core Location's `CLLocationManager` that exposes its functionality through
 /// effects and actions, making it easy to use with the Composable Architecture and easy to test.
-public struct LocationManager {
+public struct LocationClient {
   /// Actions that correspond to `CLLocationManagerDelegate` methods.
   ///
   /// See `CLLocationManagerDelegate` for more information.
@@ -13,7 +13,7 @@ public struct LocationManager {
     case didUpdateLocations([Location])
   }
 	
-	init(
+	public init(
 		authorizationStatus: @Sendable @escaping () async -> CLAuthorizationStatus,
 		delegate: @MainActor @Sendable @escaping () async -> AsyncStream<Action>,
 		location: @Sendable @escaping () async -> Location?,

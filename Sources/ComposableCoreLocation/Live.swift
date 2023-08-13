@@ -2,7 +2,7 @@ import Combine
 import CoreLocation
 import Dependencies
 
-extension LocationManager {
+extension LocationClient {
 	
   /// The live implementation of the `LocationManager` interface. This implementation is capable of
   /// creating real `CLLocationManager` instances, listening to its delegate methods, and invoking
@@ -53,9 +53,9 @@ extension LocationManager {
 }
 
 private class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
-  let continuation: AsyncStream<LocationManager.Action>.Continuation
+  let continuation: AsyncStream<LocationClient.Action>.Continuation
 
-  init(continuation: AsyncStream<LocationManager.Action>.Continuation) {
+  init(continuation: AsyncStream<LocationClient.Action>.Continuation) {
     self.continuation = continuation
   }
 	

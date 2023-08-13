@@ -1,6 +1,6 @@
 import CoreLocation
 
-extension LocationManager {
+extension LocationClient {
 	public struct Properties: Equatable {
 		@available(macOS, unavailable)
 		@available(tvOS, unavailable)

@@ -40,6 +40,7 @@ extension LocationClient {
 				}
 			},
       location: { manager.location.map(Location.init(rawValue:)) },
+			locationServicesEnabled: { CLLocationManager.locationServicesEnabled() },
       requestLocation: {
         manager.requestLocation()
       },

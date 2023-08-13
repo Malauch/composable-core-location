@@ -17,14 +17,18 @@ extension LocationClient {
 		let locationClient = LocationClient(
 			authorizationStatus: { .authorizedWhenInUse },
 			delegate: {
+				defer {
+					delegateContinuation.yield(.didUpdateLocations([.mockBrooklyn]))
+				}
 				delegateContinuation.onTermination = { [locationClientStream] _ in
 					_ = locationClientStream
 				}
 				return locationClientStream
 			},
-			location: { .mockLocation },
+			location: { .mockBrooklyn },
+			locationServicesEnabled: { true },
 			requestLocation: {
-				delegateContinuation.yield(.didUpdateLocations([.mockLocation]))
+				delegateContinuation.yield(.didUpdateLocations([.mockBrooklyn]))
 			},
 			requestWhenInUseAuthorization: { }
 		)
@@ -47,9 +51,10 @@ extension LocationClient {
 			}
 			return locationClientStream
 		}
-		locationClient.location = { .mockLocation }
+		locationClient.location = { .mockBrooklyn }
+		locationClient.locationServicesEnabled = { true }
 		locationClient.requestLocation = {
-			delegateContinuation.yield(.didUpdateLocations([.mockLocation]))
+			delegateContinuation.yield(.didUpdateLocations([.mockBrooklyn]))
 		}
 		locationClient.requestWhenInUseAuthorization = { }
 		

@@ -17,12 +17,14 @@ public struct LocationClient {
 		authorizationStatus: @Sendable @escaping () async -> CLAuthorizationStatus,
 		delegate: @MainActor @Sendable @escaping () async -> AsyncStream<Action>,
 		location: @Sendable @escaping () async -> Location?,
+		locationServicesEnabled: @Sendable @escaping () async -> Bool,
 		requestLocation: @Sendable @escaping () async -> Void,
 		requestWhenInUseAuthorization: @Sendable @escaping () async -> Void
 	) {
 		self.authorizationStatus = authorizationStatus
 		self.delegate = delegate
 		self.location = location
+		self.locationServicesEnabled = locationServicesEnabled
 		self.requestLocation = requestLocation
 		self.requestWhenInUseAuthorization = requestWhenInUseAuthorization
 	}
@@ -33,6 +35,7 @@ public struct LocationClient {
   public var delegate: @MainActor @Sendable () async -> AsyncStream<Action>
 
   public var location: @Sendable () async -> Location?
+	public var locationServicesEnabled: @Sendable () async -> Bool
 
   public var requestLocation: @Sendable () async -> Void
 

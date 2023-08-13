@@ -31,4 +31,26 @@ extension LocationManager {
 		
 		return (locationManager: locationManager, delegateContinuation: locationManagerContinuation)
 	}
+	
+	public static let mockStaticProperty: (locationManager: Self, delegateContinuation: AsyncStream<LocationManager.Action>.Continuation) = {
+		
+		let (locationManagerStream, locationManagerContinuation) = AsyncStream<LocationManager.Action>.makeStream()
+		
+		let locationManager = LocationManager(
+			authorizationStatus: { .authorizedWhenInUse },
+			delegate: {
+				locationManagerContinuation.onTermination = { [locationManagerStream] _ in
+					_ = locationManagerStream
+				}
+				return locationManagerStream
+			},
+			location: { .mockLocation },
+			requestLocation: {
+				locationManagerContinuation.yield(.didUpdateLocations([.mockLocation]))
+			},
+			requestWhenInUseAuthorization: { }
+		)
+		
+		return (locationManager: locationManager, delegateContinuation: locationManagerContinuation)
+	}()
 }

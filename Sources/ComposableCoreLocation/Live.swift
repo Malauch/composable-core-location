@@ -19,6 +19,7 @@ extension LocationClient {
   /// ```
 	public static func live() -> Self {
 		@Dependency(\.coreLocationManager) var manager
+		@Dependency(\.locationManagerDelegate) var managerDelegate
 		
     return Self(
       authorizationStatus: {
@@ -32,10 +33,10 @@ extension LocationClient {
 			// MARK: - Delegate definition 
       delegate: { @MainActor in
 				AsyncStream { continuation in
-					let delegate = LocationManagerDelegate(continuation: continuation)
-					manager.delegate = delegate
-					continuation.onTermination = { [delegate] _ in
-						_ = delegate
+					managerDelegate.continuation = continuation
+					manager.delegate = managerDelegate
+					continuation.onTermination = { [managerDelegate] _ in
+						_ = managerDelegate
 					}
 				}
 			},
@@ -53,31 +54,75 @@ extension LocationClient {
   }
 }
 
-private class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
-  let continuation: AsyncStream<LocationClient.Action>.Continuation
-
-  init(continuation: AsyncStream<LocationClient.Action>.Continuation) {
-    self.continuation = continuation
-  }
+public class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
+	typealias Continuation = AsyncStream<LocationClient.Action>.Continuation
 	
-	deinit {
-		print("LocationManager Deinit")
+  var continuation: Continuation?
+	var didChangeAuthorization: (Continuation?, CLAuthorizationStatus) -> Void
+	var didFailWithError: (Continuation?, Error) -> Void
+	var didUpdateLocation: (Continuation?, [CLLocation]) -> Void
+	
+	init(
+		continuation: AsyncStream<LocationClient.Action>.Continuation? = nil,
+		didChangeAuthorization: @escaping (Continuation?, CLAuthorizationStatus) -> Void,
+		didFailWithError: @escaping (Continuation?, Error) -> Void,
+		didUpdateLocation: @escaping (Continuation?, [CLLocation]) -> Void
+	) {
+		self.continuation = nil
+		self.didChangeAuthorization = didChangeAuthorization
+		self.didFailWithError = didFailWithError
+		self.didUpdateLocation = didUpdateLocation
 	}
 
-  func locationManager(
+	public func locationManager(
     _ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus
   ) {
-    self.continuation.yield(.didChangeAuthorization(status))
+		self.didChangeAuthorization(self.continuation, status)
   }
 
-  func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-    self.continuation.yield(.didFailWithError(error))
+	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    self.didFailWithError(self.continuation, error)
   }
 
-  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-    self.continuation.yield(.didUpdateLocations(locations.map(Location.init(rawValue:))))
+	public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+		self.didUpdateLocation(self.continuation, locations)
   }
+}
 
+extension LocationManagerDelegate: DependencyKey {
+	public static var liveValue: LocationManagerDelegate {
+		LocationManagerDelegate(
+			continuation: nil,
+			didChangeAuthorization: { continuation, authStatus in
+				guard let continuation else {
+					XCTFail("Delegate continuation is nil")
+					return
+				}
+				continuation.yield(.didChangeAuthorization(authStatus))
+			},
+			didFailWithError: { continuation, error in
+				guard let continuation else {
+					XCTFail("Delegate continuation is nil")
+					return
+				}
+				continuation.yield(.didFailWithError(error))
+			},
+			didUpdateLocation: { continuation, location in
+				guard let continuation else {
+					XCTFail("Delegate continuation is nil")
+					return
+				}
+				continuation.yield(.didUpdateLocations(location.map(Location.init(rawValue:))))
+			}
+		)
+	}
+}
+
+extension DependencyValues {
+	public var locationManagerDelegate: LocationManagerDelegate {
+		get { self[LocationManagerDelegate.self] }
+		set { self[LocationManagerDelegate.self] = newValue }
+	}
 }
 
 

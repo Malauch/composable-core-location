@@ -14,23 +14,20 @@ extension LocationManager {
 	public static func mock() -> (locationManager: Self, delegateContinuation: AsyncStream<LocationManager.Action>.Continuation) {
 		let (locationManagerStream, locationManagerContinuation) = AsyncStream<LocationManager.Action>.makeStream()
 		
-		var locationManager = LocationManager.live()
-		locationManager.authorizationStatus = {
-			.authorizedAlways
-		}
-		locationManager.delegate = {
-			locationManagerContinuation.onTermination = { [locationManagerStream] _ in
-				_ = locationManagerStream
-			}
-			
-			
-			
-			return locationManagerStream
-		}
-		locationManager.locationServicesEnabled = { true }
-		locationManager.requestLocation = {
-			locationManagerContinuation.yield(.didUpdateLocations([.mockLocation]))
-		}
+		let locationManager = LocationManager(
+			authorizationStatus: { .authorizedWhenInUse },
+			delegate: {
+				locationManagerContinuation.onTermination = { [locationManagerStream] _ in
+					_ = locationManagerStream
+				}
+				return locationManagerStream
+			},
+			location: { .mockLocation },
+			requestLocation: {
+				locationManagerContinuation.yield(.didUpdateLocations([.mockLocation]))
+			},
+			requestWhenInUseAuthorization: { }
+		)
 		
 		return (locationManager: locationManager, delegateContinuation: locationManagerContinuation)
 	}

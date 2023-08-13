@@ -18,7 +18,7 @@ extension LocationManager {
   /// )
   /// ```
 	public static func live() -> Self {
-		let manager = CLLocationManager()
+		@Dependency(\.coreLocationManager) var manager
 		
     return Self(
       accuracyAuthorization: {
@@ -37,8 +37,9 @@ extension LocationManager {
         #endif
         return manager.authorizationStatus
       },
-      delegate: {
-				AsyncStream { continuation in
+			// MARK: - Delegate definition 
+      delegate: { @MainActor in
+				AsyncStream { @MainActor continuation in
 					let delegate = LocationManagerDelegate(continuation: continuation)
 					manager.delegate = delegate
 					continuation.onTermination = { [delegate] _ in

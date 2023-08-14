@@ -16,9 +16,10 @@ extension LocationClient {
 		
 		let locationClient = LocationClient(
 			authorizationStatus: { .authorizedWhenInUse },
+			continuation: delegateContinuation,
 			delegate: {
 				defer {
-					delegateContinuation.yield(.didUpdateLocations([.mockBrooklyn]))
+					delegateContinuation.yield(.didChangeAuthorization(.authorizedWhenInUse))
 				}
 				delegateContinuation.onTermination = { [locationClientStream] _ in
 					_ = locationClientStream

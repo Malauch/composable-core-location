@@ -19,15 +19,6 @@ extension LocationClient {
   /// ```
 	public static func live() -> Self {
 		@Dependency(\.coreLocationManager) var manager
-		var delegateContinuation: AsyncStream<LocationClient.Action>.Continuation? = nil
-		let delegateStream: AsyncStream<LocationClient.Action> = AsyncStream { continuation in
-			delegateContinuation = continuation
-			let delegate = LocationManagerDelegate(continuation: continuation)
-			manager.delegate = delegate
-			continuation.onTermination = { [delegate] _ in
-				_ = delegate
-			}
-		}
 		
     return Self(
       authorizationStatus: {
@@ -38,10 +29,16 @@ extension LocationClient {
         #endif
         return manager.authorizationStatus
       },
-			continuation: delegateContinuation,
+			continuation: { nil },
 			// MARK: - Delegate definition
       delegate: { @MainActor in
-				delegateStream
+				AsyncStream { continuation in
+					let delegate = LocationManagerDelegate(continuation: continuation)
+					manager.delegate = delegate
+					continuation.onTermination = { [delegate] _ in
+						_ = delegate
+					}
+				}
 			},
       location: { manager.location.map(Location.init(rawValue:)) },
 			locationServicesEnabled: { CLLocationManager.locationServicesEnabled() },

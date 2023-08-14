@@ -38,6 +38,7 @@ extension LocationClient {
   /// ```
   public static let unimplemented = Self(
     authorizationStatus: XCTUnimplemented("\(Self.self).authorizationStatus"),
+		continuation: XCTUnimplemented("\(Self.self).continuation", placeholder: nil),
     delegate: XCTUnimplemented("\(Self.self).delegate"),
     location: XCTUnimplemented("\(Self.self).location"),
 		locationServicesEnabled: XCTUnimplemented("\(Self.self).locationServicesEnabled"),

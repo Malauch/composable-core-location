@@ -1,22 +1,12 @@
 import CoreLocation
 
 extension LocationClient {
-	static let noop: Self = {
-		// NB: CLLocationManager mostly does not work in SwiftUI previews, so we provide a mock
-		//     manager that has all authorization allowed and mocks the device's current location
-		//     to Brooklyn, NY.
-		let (locationManager, locationManagerContinuation) = Self.mockClientWithContinuation()
-
-		return locationManager
-	}()
-	
-	/// Helpers for creating basic mock version of `LocationManager` and exposes `delegateContinuation` for firing delegate actins during tests.
-	public static func mockClientWithContinuation() -> (locationClient: Self, delegateContinuation: AsyncStream<LocationClient.Action>.Continuation) {
+	public static let mock: Self = {
 		let (locationClientStream, delegateContinuation) = AsyncStream<LocationClient.Action>.makeStream()
 		
 		let locationClient = LocationClient(
 			authorizationStatus: { .authorizedWhenInUse },
-			continuation: delegateContinuation,
+			continuation: { delegateContinuation },
 			delegate: {
 				defer {
 					delegateContinuation.yield(.didChangeAuthorization(.authorizedWhenInUse))
@@ -34,11 +24,7 @@ extension LocationClient {
 			requestWhenInUseAuthorization: { }
 		)
 		
-		return (locationClient: locationClient, delegateContinuation: delegateContinuation)
-	}
-	
-	public static let mock: Self = {
-		Self.mockClientWithContinuation().locationClient
+		return locationClient
 	}()
 	
 	public static let mockFromLive: Self = {

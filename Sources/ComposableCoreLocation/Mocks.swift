@@ -28,23 +28,7 @@ extension LocationClient {
 		return locationClient
 	}()
 	
-	public static let mockUsingDelegate: Self = {
-		@Dependency(\.locationManagerDelegate) var delegate
-		
-		return Self(
-			authorizationStatus: { .authorizedWhenInUse },
-			delegate:  {
-				AsyncStream { continuation in
-					delegate.continuation = continuation
-				}
-			},
-			location: { .mockFluid() },
-			locationServicesEnabled: { true },
-			requestLocation: { delegate.locationManager(.init(), didUpdateLocations: [Location.mockFluid().rawValue]) },
-			requestWhenInUseAuthorization: { }
-		)
-	}()
-	
+	/// Mock defined from live value. For now it's mostly useless but later it's just easier to define mock like this, with all the rules and properties for different platfom. For now it's just here to chekc if it's properly working.
 	public static let mockFromLive: Self = {
 		var locationClient = Self.live()
 		let (locationClientStream, delegateContinuation) = AsyncStream<LocationClient.Action>.makeStream()

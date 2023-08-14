@@ -17,10 +17,10 @@ extension LocationClient {
 				}
 				return locationClientStream
 			},
-			location: { .mockBrooklyn },
+			location: { .mockFluid() },
 			locationServicesEnabled: { true },
 			requestLocation: {
-				delegateContinuation.yield(.didUpdateLocations([.mockBrooklyn]))
+				delegateContinuation.yield(.didUpdateLocations([.mockFluid()]))
 			},
 			requestWhenInUseAuthorization: { }
 		)
@@ -40,10 +40,10 @@ extension LocationClient {
 			}
 			return locationClientStream
 		}
-		locationClient.location = { .mockBrooklyn }
+		locationClient.location = { .mockFluid() }
 		locationClient.locationServicesEnabled = { true }
 		locationClient.requestLocation = {
-			delegateContinuation.yield(.didUpdateLocations([.mockBrooklyn]))
+			delegateContinuation.yield(.didUpdateLocations([.mockFluid()]))
 		}
 		locationClient.requestWhenInUseAuthorization = { }
 		

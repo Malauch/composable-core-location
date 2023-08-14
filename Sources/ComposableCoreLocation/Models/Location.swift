@@ -240,6 +240,6 @@ extension Location {
 		let latitude = Double(Int.random(in: 51_213_000...51_214_000))/1_000_000
 		let longitude = Double(Int.random(in: 15_744_000...15_745_000))/1_000_000
 		
-		return Location(coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+		return Location(latitude: latitude, longitude: longitude)
 	}
 }

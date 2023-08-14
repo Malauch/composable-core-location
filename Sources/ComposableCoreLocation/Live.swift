@@ -30,7 +30,8 @@ extension LocationClient {
         #endif
         return manager.authorizationStatus
       },
-			// MARK: - Delegate definition 
+			continuation: { nil },
+			// MARK: - Delegate definition
       delegate: { @MainActor in
 				AsyncStream { continuation in
 					managerDelegate.continuation = continuation

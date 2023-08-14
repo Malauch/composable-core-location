@@ -23,6 +23,7 @@ public struct LocationClient {
 		requestWhenInUseAuthorization: @Sendable @escaping () async -> Void
 	) {
 		self.authorizationStatus = authorizationStatus
+		self.continuation = continuation
 		self.delegate = delegate
 		self.location = location
 		self.locationServicesEnabled = locationServicesEnabled

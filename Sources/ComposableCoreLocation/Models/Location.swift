@@ -25,6 +25,27 @@ public struct Location {
       timestamp: timestamp
     )
   }
+	
+	public init(
+		altitude: CLLocationDistance = 0,
+		latitude: Double = 0,
+		longitude: Double = 0,
+		course: CLLocationDirection = 0,
+		horizontalAccuracy: CLLocationAccuracy = 0,
+		speed: CLLocationSpeed = 0,
+		timestamp: Date = Date(),
+		verticalAccuracy: CLLocationAccuracy = 0
+	) {
+		self.rawValue = CLLocation(
+			coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+			altitude: altitude,
+			horizontalAccuracy: horizontalAccuracy,
+			verticalAccuracy: verticalAccuracy,
+			course: course,
+			speed: speed,
+			timestamp: timestamp
+		)
+	}
 
   public init(rawValue: CLLocation) {
     self.rawValue = rawValue

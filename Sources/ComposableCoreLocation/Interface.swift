@@ -42,7 +42,7 @@ public struct LocationClient {
 	// MARK: - Delegate signature
   public var delegate: @MainActor @Sendable () async -> AsyncStream<Action>
 	
-	public var get: @Sendable () -> Properties
+	public var get: @Sendable () async -> Properties
 
   public var location: @Sendable () async -> Location?
 	public var locationServicesEnabled: @Sendable () async -> Bool

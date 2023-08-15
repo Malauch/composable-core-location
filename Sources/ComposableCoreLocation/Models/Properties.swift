@@ -4,28 +4,28 @@ extension LocationClient {
 	public struct Properties: Equatable {
 		@available(macOS, unavailable)
 		@available(tvOS, unavailable)
-		var activityType: CLActivityType? = nil
+		public var activityType: CLActivityType? = nil
 		
 		@available(macOS, unavailable)
 		@available(tvOS, unavailable)
-		var allowsBackgroundLocationUpdates: Bool? = nil
+		public var allowsBackgroundLocationUpdates: Bool? = nil
 		
-		var desiredAccuracy: CLLocationAccuracy? = nil
+		public var desiredAccuracy: CLLocationAccuracy? = nil
 		
-		var distanceFilter: CLLocationDistance? = nil
-		
-		@available(macOS, unavailable)
-		@available(tvOS, unavailable)
-		var headingFilter: CLLocationDegrees? = nil
+		public var distanceFilter: CLLocationDistance? = nil
 		
 		@available(macOS, unavailable)
 		@available(tvOS, unavailable)
-		var headingOrientation: CLDeviceOrientation? = nil
+		public var headingFilter: CLLocationDegrees? = nil
+		
+		@available(macOS, unavailable)
+		@available(tvOS, unavailable)
+		public var headingOrientation: CLDeviceOrientation? = nil
 		
 		@available(macOS, unavailable)
 		@available(tvOS, unavailable)
 		@available(watchOS, unavailable)
-		var pausesLocationUpdatesAutomatically: Bool? {
+		public var pausesLocationUpdatesAutomatically: Bool? {
 			get { self._pausesLocationUpdatesAutomatically }
 			set { self._pausesLocationUpdatesAutomatically = newValue }
 		}
@@ -34,7 +34,7 @@ extension LocationClient {
 		@available(macOS, unavailable)
 		@available(tvOS, unavailable)
 		@available(watchOS, unavailable)
-		var showsBackgroundLocationIndicator: Bool? {
+		public var showsBackgroundLocationIndicator: Bool? {
 			get { self._showsBackgroundLocationIndicator }
 			set { self._showsBackgroundLocationIndicator = newValue }
 		}

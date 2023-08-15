@@ -40,6 +40,46 @@ extension LocationClient {
 					}
 				}
 			},
+			get: {
+				var properties = Properties()
+				
+					#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
+					if let activityType = properties.activityType {
+						manager.activityType = activityType
+					}
+					if let allowsBackgroundLocationUpdates = properties.allowsBackgroundLocationUpdates {
+						manager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates
+					}
+					#endif
+					#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
+					if let desiredAccuracy = properties.desiredAccuracy {
+						manager.desiredAccuracy = desiredAccuracy
+					}
+					if let distanceFilter = properties.distanceFilter {
+						manager.distanceFilter = distanceFilter
+					}
+					#endif
+					#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
+					if let headingFilter = properties.headingFilter {
+						manager.headingFilter = headingFilter
+					}
+					if let headingOrientation = properties.headingOrientation {
+						manager.headingOrientation = headingOrientation
+					}
+					#endif
+					#if os(iOS) || targetEnvironment(macCatalyst)
+					if let pausesLocationUpdatesAutomatically = properties
+						.pausesLocationUpdatesAutomatically
+					{
+						manager.pausesLocationUpdatesAutomatically = pausesLocationUpdatesAutomatically
+					}
+					if let showsBackgroundLocationIndicator = properties.showsBackgroundLocationIndicator {
+						manager.showsBackgroundLocationIndicator = showsBackgroundLocationIndicator
+					}
+					#endif
+				
+				return properties
+			},
       location: { manager.location.map(Location.init(rawValue:)) },
 			locationServicesEnabled: { CLLocationManager.locationServicesEnabled() },
       requestLocation: {
@@ -51,31 +91,31 @@ extension LocationClient {
         #endif
       },
 			set: { properties in
-#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
+				#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
 				if let activityType = properties.activityType {
 					manager.activityType = activityType
 				}
 				if let allowsBackgroundLocationUpdates = properties.allowsBackgroundLocationUpdates {
 					manager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates
 				}
-#endif
-#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
+				#endif
+				#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
 				if let desiredAccuracy = properties.desiredAccuracy {
 					manager.desiredAccuracy = desiredAccuracy
 				}
 				if let distanceFilter = properties.distanceFilter {
 					manager.distanceFilter = distanceFilter
 				}
-#endif
-#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
+				#endif
+				#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
 				if let headingFilter = properties.headingFilter {
 					manager.headingFilter = headingFilter
 				}
 				if let headingOrientation = properties.headingOrientation {
 					manager.headingOrientation = headingOrientation
 				}
-#endif
-#if os(iOS) || targetEnvironment(macCatalyst)
+				#endif
+				#if os(iOS) || targetEnvironment(macCatalyst)
 				if let pausesLocationUpdatesAutomatically = properties
 					.pausesLocationUpdatesAutomatically
 				{
@@ -84,7 +124,7 @@ extension LocationClient {
 				if let showsBackgroundLocationIndicator = properties.showsBackgroundLocationIndicator {
 					manager.showsBackgroundLocationIndicator = showsBackgroundLocationIndicator
 				}
-#endif
+				#endif
 			}
     )
   }

@@ -17,6 +17,7 @@ extension LocationClient {
 				}
 				return locationClientStream
 			},
+			get: { Properties() },
 			location: { .mockFluid() },
 			locationServicesEnabled: { true },
 			requestLocation: {

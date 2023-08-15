@@ -44,38 +44,24 @@ extension LocationClient {
 				var properties = Properties()
 				
 					#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
-					if let activityType = properties.activityType {
-						manager.activityType = activityType
-					}
-					if let allowsBackgroundLocationUpdates = properties.allowsBackgroundLocationUpdates {
-						manager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates
-					}
+					properties.activityType = manager.activityType
+					properties.allowsBackgroundLocationUpdates = manager.allowsBackgroundLocationUpdates
 					#endif
+
 					#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
-					if let desiredAccuracy = properties.desiredAccuracy {
-						manager.desiredAccuracy = desiredAccuracy
-					}
-					if let distanceFilter = properties.distanceFilter {
-						manager.distanceFilter = distanceFilter
-					}
+					properties.desiredAccuracy = manager.desiredAccuracy
+					properties.distanceFilter =	manager.distanceFilter
 					#endif
+
 					#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
-					if let headingFilter = properties.headingFilter {
-						manager.headingFilter = headingFilter
-					}
-					if let headingOrientation = properties.headingOrientation {
-						manager.headingOrientation = headingOrientation
-					}
+					properties.headingFilter = manager.headingFilter
+					properties.headingOrientation =	manager.headingOrientation
+					
 					#endif
 					#if os(iOS) || targetEnvironment(macCatalyst)
-					if let pausesLocationUpdatesAutomatically = properties
-						.pausesLocationUpdatesAutomatically
-					{
-						manager.pausesLocationUpdatesAutomatically = pausesLocationUpdatesAutomatically
-					}
-					if let showsBackgroundLocationIndicator = properties.showsBackgroundLocationIndicator {
-						manager.showsBackgroundLocationIndicator = showsBackgroundLocationIndicator
-					}
+					properties.pausesLocationUpdatesAutomatically = manager.pausesLocationUpdatesAutomatically
+					properties.showsBackgroundLocationIndicator = manager.showsBackgroundLocationIndicator
+					
 					#endif
 				
 				return properties

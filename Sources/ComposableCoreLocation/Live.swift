@@ -19,7 +19,6 @@ extension LocationClient {
   /// ```
 	public static func live() -> Self {
 		@Dependency(\.coreLocationManager) var manager
-		@Dependency(\.locationManagerDelegate) var managerDelegate
 		
     return Self(
       authorizationStatus: {
@@ -34,10 +33,10 @@ extension LocationClient {
 			// MARK: - Delegate definition
       delegate: { @MainActor in
 				AsyncStream { continuation in
-					managerDelegate.continuation = continuation
-					manager.delegate = managerDelegate
-					continuation.onTermination = { [managerDelegate] _ in
-						_ = managerDelegate
+					let delegate = LocationManagerDelegate(continuation: continuation)
+					manager.delegate = delegate
+					continuation.onTermination = { [delegate] _ in
+						_ = delegate
 					}
 				}
 			},
@@ -50,82 +49,73 @@ extension LocationClient {
         #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
           manager.requestWhenInUseAuthorization()
         #endif
-      }
+      },
+			set: { properties in
+#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
+				if let activityType = properties.activityType {
+					manager.activityType = activityType
+				}
+				if let allowsBackgroundLocationUpdates = properties.allowsBackgroundLocationUpdates {
+					manager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates
+				}
+#endif
+#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
+				if let desiredAccuracy = properties.desiredAccuracy {
+					manager.desiredAccuracy = desiredAccuracy
+				}
+				if let distanceFilter = properties.distanceFilter {
+					manager.distanceFilter = distanceFilter
+				}
+#endif
+#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
+				if let headingFilter = properties.headingFilter {
+					manager.headingFilter = headingFilter
+				}
+				if let headingOrientation = properties.headingOrientation {
+					manager.headingOrientation = headingOrientation
+				}
+#endif
+#if os(iOS) || targetEnvironment(macCatalyst)
+				if let pausesLocationUpdatesAutomatically = properties
+					.pausesLocationUpdatesAutomatically
+				{
+					manager.pausesLocationUpdatesAutomatically = pausesLocationUpdatesAutomatically
+				}
+				if let showsBackgroundLocationIndicator = properties.showsBackgroundLocationIndicator {
+					manager.showsBackgroundLocationIndicator = showsBackgroundLocationIndicator
+				}
+#endif
+			}
     )
   }
 }
 
-public class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
-	public typealias Continuation = AsyncStream<LocationClient.Action>.Continuation
+private final class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
+	let continuation: AsyncStream<LocationClient.Action>.Continuation
 	
-  public var continuation: Continuation?
-	public var didChangeAuthorization: (Continuation?, CLAuthorizationStatus) -> Void
-	public var didFailWithError: (Continuation?, Error) -> Void
-	public var didUpdateLocation: (Continuation?, [CLLocation]) -> Void
+	init(continuation: AsyncStream<LocationClient.Action>.Continuation) {
+		self.continuation = continuation
+	}
 	
-	init(
-		continuation: AsyncStream<LocationClient.Action>.Continuation? = nil,
-		didChangeAuthorization: @escaping (Continuation?, CLAuthorizationStatus) -> Void,
-		didFailWithError: @escaping (Continuation?, Error) -> Void,
-		didUpdateLocation: @escaping (Continuation?, [CLLocation]) -> Void
+	deinit {
+		print("LocationManager Deinit")
+	}
+	
+	func locationManager(
+		_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus
 	) {
-		self.continuation = nil
-		self.didChangeAuthorization = didChangeAuthorization
-		self.didFailWithError = didFailWithError
-		self.didUpdateLocation = didUpdateLocation
+		self.continuation.yield(.didChangeAuthorization(status))
 	}
-
-	public func locationManager(
-    _ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus
-  ) {
-		self.didChangeAuthorization(self.continuation, status)
-  }
-
-	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-    self.didFailWithError(self.continuation, error)
-  }
-
-	public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-		self.didUpdateLocation(self.continuation, locations)
-  }
-}
-
-extension LocationManagerDelegate: DependencyKey {
-	public static var liveValue: LocationManagerDelegate {
-		LocationManagerDelegate(
-			continuation: nil,
-			didChangeAuthorization: { continuation, authStatus in
-				guard let continuation else {
-					XCTFail("Delegate continuation is nil")
-					return
-				}
-				continuation.yield(.didChangeAuthorization(authStatus))
-			},
-			didFailWithError: { continuation, error in
-				guard let continuation else {
-					XCTFail("Delegate continuation is nil")
-					return
-				}
-				continuation.yield(.didFailWithError(error))
-			},
-			didUpdateLocation: { continuation, location in
-				guard let continuation else {
-					XCTFail("Delegate continuation is nil")
-					return
-				}
-				continuation.yield(.didUpdateLocations(location.map(Location.init(rawValue:))))
-			}
-		)
+	
+	func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+		self.continuation.yield(.didFailWithError(error))
 	}
-}
-
-extension DependencyValues {
-	public var locationManagerDelegate: LocationManagerDelegate {
-		get { self[LocationManagerDelegate.self] }
-		set { self[LocationManagerDelegate.self] = newValue }
+	
+	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+		self.continuation.yield(.didUpdateLocations(locations.map(Location.init(rawValue:))))
 	}
+	
 }
-
 
 // Fileprivate `CLLocationManager` instance as a dependency to workaround the bug mentioned in line #20.
 extension CLLocationManager: DependencyKey {

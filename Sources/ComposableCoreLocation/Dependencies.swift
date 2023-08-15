@@ -9,8 +9,8 @@ extension DependencyValues {
 }
 
 extension LocationClient: DependencyKey {
-	public static var liveValue: Self { Self.live() }
-	public static var previewValue: Self { Self.mock }
-	public static var testValue: Self { Self.unimplemented }
+	public static var liveValue: Self = .live()
+	public static var previewValue: Self = .mock
+	public static var testValue: Self = .unimplemented
 	
 }

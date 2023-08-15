@@ -22,7 +22,8 @@ extension LocationClient {
 			requestLocation: {
 				delegateContinuation.yield(.didUpdateLocations([.mockFluid()]))
 			},
-			requestWhenInUseAuthorization: { }
+			requestWhenInUseAuthorization: { },
+			set: { _ in }
 		)
 		
 		return locationClient

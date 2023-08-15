@@ -43,6 +43,7 @@ extension LocationClient {
     location: XCTUnimplemented("\(Self.self).location"),
 		locationServicesEnabled: XCTUnimplemented("\(Self.self).locationServicesEnabled"),
     requestLocation: XCTUnimplemented("\(Self.self).requestLocation"),
-    requestWhenInUseAuthorization: XCTUnimplemented("\(Self.self).requestWhenInUseAuthorization")
+    requestWhenInUseAuthorization: XCTUnimplemented("\(Self.self).requestWhenInUseAuthorization"),
+		set: XCTUnimplemented("\(Self.self).set")
   )
 }

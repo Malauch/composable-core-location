@@ -20,7 +20,8 @@ public struct LocationClient {
 		location: @Sendable @escaping () async -> Location?,
 		locationServicesEnabled: @Sendable @escaping () async -> Bool,
 		requestLocation: @Sendable @escaping () async -> Void,
-		requestWhenInUseAuthorization: @Sendable @escaping () async -> Void
+		requestWhenInUseAuthorization: @Sendable @escaping () async -> Void,
+		set: @Sendable @escaping (Properties) async -> Void
 	) {
 		self.authorizationStatus = authorizationStatus
 		self.continuation = continuation
@@ -29,6 +30,7 @@ public struct LocationClient {
 		self.locationServicesEnabled = locationServicesEnabled
 		self.requestLocation = requestLocation
 		self.requestWhenInUseAuthorization = requestWhenInUseAuthorization
+		self.set = set
 	}
 
   public var authorizationStatus: @Sendable () async -> CLAuthorizationStatus
@@ -44,4 +46,58 @@ public struct LocationClient {
   public var requestLocation: @Sendable () async -> Void
 
   public var requestWhenInUseAuthorization: @Sendable () async -> Void
+	
+	public var set: @MainActor @Sendable (Properties) async -> Void
+	
+	/// Updates the given properties of a uniquely identified `CLLocationManager`.
+	@available(macOS, unavailable)
+	@available(tvOS, unavailable)
+	@available(watchOS, unavailable)
+	@Sendable public func set(
+		activityType: CLActivityType? = nil,
+		allowsBackgroundLocationUpdates: Bool? = nil,
+		desiredAccuracy: CLLocationAccuracy? = nil,
+		distanceFilter: CLLocationDistance? = nil,
+		headingFilter: CLLocationDegrees? = nil,
+		headingOrientation: CLDeviceOrientation? = nil,
+		pausesLocationUpdatesAutomatically: Bool? = nil,
+		showsBackgroundLocationIndicator: Bool? = nil
+	) async {
+		await self.set(
+			Properties(
+				activityType: activityType,
+				allowsBackgroundLocationUpdates: allowsBackgroundLocationUpdates,
+				desiredAccuracy: desiredAccuracy,
+				distanceFilter: distanceFilter,
+				headingFilter: headingFilter,
+				headingOrientation: headingOrientation,
+				pausesLocationUpdatesAutomatically: pausesLocationUpdatesAutomatically,
+				showsBackgroundLocationIndicator: showsBackgroundLocationIndicator
+			)
+		)
+	}
+	
+	/// Updates the given properties of a uniquely identified `CLLocationManager`.
+	@available(iOS, unavailable)
+	@available(macOS, unavailable)
+	@available(tvOS, unavailable)
+	@Sendable public func set(
+		activityType: CLActivityType? = nil,
+		allowsBackgroundLocationUpdates: Bool? = nil,
+		desiredAccuracy: CLLocationAccuracy? = nil,
+		distanceFilter: CLLocationDistance? = nil,
+		headingFilter: CLLocationDegrees? = nil,
+		headingOrientation: CLDeviceOrientation? = nil
+	) async {
+		await self.set(
+			Properties(
+				activityType: activityType,
+				allowsBackgroundLocationUpdates: allowsBackgroundLocationUpdates,
+				desiredAccuracy: desiredAccuracy,
+				distanceFilter: distanceFilter,
+				headingFilter: headingFilter,
+				headingOrientation: headingOrientation
+			)
+		)
+	}
 }

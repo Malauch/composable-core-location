@@ -32,7 +32,7 @@ extension LocationClient {
 	
 	/// Mock defined from live value. For now it's mostly useless but later it's just easier to define mock like this, with all the rules and properties for different platfom. For now it's just here to chekc if it's properly working.
 	public static let mockFromLive: Self = {
-		var locationClient = Self.live()
+		var locationClient = Self.live
 		let (locationClientStream, delegateContinuation) = AsyncStream<LocationClient.Action>.makeStream()
 		
 		locationClient.authorizationStatus = { .authorizedWhenInUse }

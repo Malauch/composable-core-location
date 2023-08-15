@@ -17,8 +17,9 @@ extension LocationClient {
   ///   )
   /// )
   /// ```
-	public static func live() -> Self {
-		@Dependency(\.coreLocationManager) var manager
+
+	public static let live: Self = {
+		let manager = CLLocationManager()
 		
     return Self(
       authorizationStatus: {
@@ -113,7 +114,7 @@ extension LocationClient {
 				#endif
 			}
     )
-  }
+  }()
 }
 
 private final class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {

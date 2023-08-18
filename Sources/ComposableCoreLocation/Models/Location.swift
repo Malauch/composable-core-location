@@ -54,6 +54,91 @@ public struct Location {
   public subscript<T>(dynamicMember keyPath: KeyPath<CLLocation, T>) -> T {
     self.rawValue[keyPath: keyPath]
   }
+	
+	public func distance(from location: Self) -> CLLocationDistance{
+		self.rawValue.distance(from: location.rawValue)
+	}
+}
+
+// It's to fixed not describing propertis by customDump in The Composable Architecuture Tests.
+extension Location: CustomReflectable {
+	public var customMirror: Mirror {
+		
+		#if compiler(>=5.2)
+		if #available(iOS 15.0, macCatalyst 15.0, macOS 12, tvOS 15, watchOS 8.0, *) {
+			return Mirror(
+				self.rawValue,
+				children: [
+					"coordinate": self.rawValue.coordinate,
+					"altitude": self.rawValue.altitude,
+					"ellipsoidAltitude": self.rawValue.ellipsoidalAltitude,
+					"floor": self.rawValue.floor as Any,
+					"timestamp": self.rawValue.timestamp,
+					"sourceInformation": self.rawValue.sourceInformation as Any,
+					"horizontalAccuraccy": self.rawValue.horizontalAccuracy,
+					"verticalAccuracy": self.rawValue.verticalAccuracy,
+					"speed": self.rawValue.speed,
+					"speedAccuracy": self.rawValue.speedAccuracy,
+					"course": self.rawValue.course,
+					"courseAccuracy": self.rawValue.courseAccuracy,
+				],
+				displayStyle: .struct
+			)
+		} else if #available(iOS 13.4, macCatalyst 13.4, macOS 10.15.4, tvOS 13.4, watchOS 6.2, *) {
+			return Mirror(
+				self.rawValue,
+				children: [
+					"coordinate": self.rawValue.coordinate,
+					"altitude": self.rawValue.altitude,
+					"floor": self.rawValue.floor as Any,
+					"timestamp": self.rawValue.timestamp,
+					"horizontalAccuraccy": self.rawValue.horizontalAccuracy,
+					"verticalAccuracy": self.rawValue.verticalAccuracy,
+					"speed": self.rawValue.speed,
+					"speedAccuracy": self.rawValue.speedAccuracy,
+					"course": self.rawValue.course,
+					"courseAccuracy": self.rawValue.courseAccuracy,
+				],
+				displayStyle: .struct
+			)
+		} else {
+			return Mirror(
+				self.rawValue,
+				children: [
+					"coordinate": self.rawValue.coordinate,
+					"altitude": self.rawValue.altitude,
+					"floor": self.rawValue.floor as Any,
+					"timestamp": self.rawValue.timestamp,
+					"horizontalAccuraccy": self.rawValue.horizontalAccuracy,
+					"verticalAccuracy": self.rawValue.verticalAccuracy,
+					"speed": self.rawValue.speed,
+					"speedAccuracy": self.rawValue.speedAccuracy,
+					"course": self.rawValue.course,
+					"courseAccuracy": self.rawValue.courseAccuracy,
+				],
+				displayStyle: .struct
+			)
+		}
+		#else
+		Mirror(
+			self.rawValue,
+			children: [
+				"coordinate": self.rawValue.coordinate,
+				"altitude": self.rawValue.altitude,
+				//				"ellipsoidAltitude": self.rawValue.ellipsoidalAltitude,
+				"floor": self.rawValue.floor as Any,
+				"timestamp": self.rawValue.timestamp,
+				//				"sourceInformation": self.rawValue.sourceInformation as Any,
+				"horizontalAccuraccy": self.rawValue.horizontalAccuracy,
+				"verticalAccuracy": self.rawValue.verticalAccuracy,
+				"speed": self.rawValue.speed,
+				"course": self.rawValue.course,
+			],
+			displayStyle: .struct
+		)
+		#endif
+		
+	}
 }
 
 extension Location: Hashable {

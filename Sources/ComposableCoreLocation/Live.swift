@@ -135,6 +135,7 @@ private final class LocationManagerDelegate: NSObject, CLLocationManagerDelegate
 	}
 	
 	func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+		let error = CLError(_nsError: error as NSError)
 		self.continuation.yield(.didFailWithError(error))
 	}
 	

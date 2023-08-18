@@ -7,9 +7,9 @@ public struct LocationClient {
   /// Actions that correspond to `CLLocationManagerDelegate` methods.
   ///
   /// See `CLLocationManagerDelegate` for more information.
-  public enum Action {
+	public enum Action: Equatable {
     case didChangeAuthorization(CLAuthorizationStatus)
-    case didFailWithError(Error)
+    case didFailWithError(CLError)
     case didUpdateLocations([Location])
   }
 	

@@ -125,10 +125,8 @@ extension Location: CustomReflectable {
 			children: [
 				"coordinate": self.rawValue.coordinate,
 				"altitude": self.rawValue.altitude,
-				//				"ellipsoidAltitude": self.rawValue.ellipsoidalAltitude,
 				"floor": self.rawValue.floor as Any,
 				"timestamp": self.rawValue.timestamp,
-				//				"sourceInformation": self.rawValue.sourceInformation as Any,
 				"horizontalAccuraccy": self.rawValue.horizontalAccuracy,
 				"verticalAccuracy": self.rawValue.verticalAccuracy,
 				"speed": self.rawValue.speed,

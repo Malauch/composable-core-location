@@ -124,14 +124,8 @@ private final class LocationManagerDelegate: NSObject, CLLocationManagerDelegate
 		self.continuation = continuation
 	}
 	
-	deinit {
-		print("LocationManager Deinit")
-	}
-	
-	func locationManager(
-		_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus
-	) {
-		self.continuation.yield(.didChangeAuthorization(status))
+	func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+		self.continuation.yield(.didChangeAuthorization)
 	}
 	
 	func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

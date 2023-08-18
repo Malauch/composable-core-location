@@ -2,8 +2,8 @@ import CoreLocation
 import Foundation
 
 extension GeocoderClient {
-	public static let live: Self = GeocoderClient(
-		reverseGeocodeLocation: { location in
+	public static let live: Self = {
+		let reverseGeocodeLocation: @Sendable (Location) async throws -> Placemark = { location in
 			let geocoder = CLGeocoder()
 			if let placemark = try await geocoder.reverseGeocodeLocation(location.rawValue).first {
 				return Placemark(rawValue: placemark)
@@ -11,16 +11,32 @@ extension GeocoderClient {
 				throw NoPlacemarkFound()
 			}
 			
-		},
-		geocodeAddressString: { addressString, region, locale in
+		}
+		
+		#if os(visionOS)
+		let geocodeAddressString: @Sendable (String) async throws -> [Placemark] = { addressString in
+			let geocoder = CLGeocoder()
+			return try await geocoder.geocodeAddressString(
+				addressString
+			)
+			.map(Placemark.init(rawValue:))
+		}
+		#else
+		let geocodeAddressString: @Sendable (String, Region?, Locale?) async throws -> [Placemark] = { addressString, region, locale in
 			let geocoder = CLGeocoder()
 			return try await geocoder.geocodeAddressString(
 				addressString,
-				in: region,
+				in: region?.rawValue,
 				preferredLocale: locale
 			).map(Placemark.init(rawValue:))
 		}
-	)
+		#endif
+		
+		return Self(
+			reverseGeocodeLocation: reverseGeocodeLocation,
+			geocodeAddressString: geocodeAddressString
+		)
+	}()
 }
 
 extension GeocoderClient {

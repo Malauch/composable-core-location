@@ -2,6 +2,7 @@ import CoreLocation
 
 /// A value type wrapper for `CLRegion`. This type is necessary so that we can do equality checks
 /// and write tests against its values.
+@available(visionOS, unavailable)
 public struct Region: Hashable {
   public let rawValue: CLRegion?
 

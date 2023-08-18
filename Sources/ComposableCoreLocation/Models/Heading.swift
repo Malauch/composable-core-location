@@ -14,6 +14,7 @@ public struct Heading: Hashable {
   @available(iOS 3, macCatalyst 13, watchOS 2, *)
   @available(macOS, unavailable)
   @available(tvOS, unavailable)
+	@available(visionOS, unavailable)
   public init(rawValue: CLHeading) {
     self.headingAccuracy = rawValue.headingAccuracy
     self.magneticHeading = rawValue.magneticHeading

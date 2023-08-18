@@ -8,7 +8,7 @@ public struct LocationClient {
   ///
   /// See `CLLocationManagerDelegate` for more information.
 	public enum Action: Equatable {
-    case didChangeAuthorization(CLAuthorizationStatus)
+    case didChangeAuthorization
     case didFailWithError(CLError)
     case didUpdateLocations([Location])
   }

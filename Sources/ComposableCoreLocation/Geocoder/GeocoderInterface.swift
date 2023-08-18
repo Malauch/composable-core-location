@@ -3,13 +3,28 @@ import Foundation
 
 public struct GeocoderClient {
 	public var reverseGeocodeLocation: @Sendable (Location) async throws -> Placemark
-	public var geocodeAddressString: @Sendable (String, CLRegion?, Locale?) async throws -> [Placemark]
 	
+	#if os(visionOS)
+	public var geocodeAddressString: @Sendable (String) async throws -> [Placemark]
+	#else
+	public var geocodeAddressString: @Sendable (String, Region?, Locale?) async throws -> [Placemark]
+	#endif
+	
+#if os(visionOS)
+	public func getAddressCoordinates(
+		_ addressString: String
+	) async throws -> [Placemark] {
+		try await self.geocodeAddressString(addressString)
+	}
+#else
 	public func getAddressCoordinates(
 		_ addressString: String,
-		in region: CLRegion?,
+		in region: Region?,
 		preferredLocale locale: Locale?
 	) async throws -> [Placemark] {
 		try await self.geocodeAddressString(addressString, region, locale)
 	}
+#endif
+	
+	
 }

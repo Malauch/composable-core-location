@@ -2,7 +2,7 @@ import CoreLocation
 import XCTestDynamicOverlay
 
 extension LocationClient {
-  /// The failing implementation of the ``LocationManager`` interface. By default this
+  /// The failing implementation of the ``LocationClient`` interface. By default this
   /// implementation stubs all of its endpoints as functions that immediately call `XCTFail`.
   ///
   /// This allows you to test an even deeper property of your features: that they use only the

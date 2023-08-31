@@ -1,4 +1,5 @@
 import CoreLocation
+import Dependencies
 
 /// A value type wrapper for `CLLocation`. This type is necessary so that we can do equality checks
 /// and write tests against its values.
@@ -12,7 +13,7 @@ public struct Location {
     course: CLLocationDirection = 0,
     horizontalAccuracy: CLLocationAccuracy = 0,
     speed: CLLocationSpeed = 0,
-    timestamp: Date = Date(),
+    timestamp: Date,
     verticalAccuracy: CLLocationAccuracy = 0
   ) {
     self.rawValue = CLLocation(
@@ -28,12 +29,33 @@ public struct Location {
 	
 	public init(
 		altitude: CLLocationDistance = 0,
+		coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 0, longitude: 0),
+		course: CLLocationDirection = 0,
+		horizontalAccuracy: CLLocationAccuracy = 0,
+		speed: CLLocationSpeed = 0,
+		verticalAccuracy: CLLocationAccuracy = 0
+	) {
+		@Dependency(\.date) var date
+		
+		self = .init(
+			altitude: altitude,
+			coordinate: coordinate,
+			course: course,
+			horizontalAccuracy: horizontalAccuracy,
+			speed: speed,
+			timestamp: date(),
+			verticalAccuracy: verticalAccuracy
+		)
+	}
+	
+	public init(
+		altitude: CLLocationDistance = 0,
 		latitude: Double = 0,
 		longitude: Double = 0,
 		course: CLLocationDirection = 0,
 		horizontalAccuracy: CLLocationAccuracy = 0,
 		speed: CLLocationSpeed = 0,
-		timestamp: Date = Date(),
+		timestamp: Date,
 		verticalAccuracy: CLLocationAccuracy = 0
 	) {
 		self.rawValue = CLLocation(
@@ -44,6 +66,28 @@ public struct Location {
 			course: course,
 			speed: speed,
 			timestamp: timestamp
+		)
+	}
+	public init(
+		altitude: CLLocationDistance = 0,
+		latitude: Double = 0,
+		longitude: Double = 0,
+		course: CLLocationDirection = 0,
+		horizontalAccuracy: CLLocationAccuracy = 0,
+		speed: CLLocationSpeed = 0,
+		verticalAccuracy: CLLocationAccuracy = 0
+	) {
+		@Dependency(\.date) var date
+		
+		self = Self(
+			altitude: altitude,
+			latitude: latitude,
+			longitude: longitude,
+			course: course,
+			horizontalAccuracy: horizontalAccuracy,
+			speed: speed,
+			timestamp: date(),
+			verticalAccuracy: verticalAccuracy
 		)
 	}
 

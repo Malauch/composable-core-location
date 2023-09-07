@@ -2,7 +2,7 @@ import CoreLocation
 import Foundation
 
 public struct GeocoderClient {
-	public var reverseGeocodeLocation: @Sendable (Location) async throws -> Placemark
+	public var cancelGeocoding: @Sendable () async -> Void
 	
 	#if os(visionOS)
 	public var geocodeAddressString: @Sendable (String) async throws -> [Placemark]
@@ -26,5 +26,6 @@ public struct GeocoderClient {
 	}
 #endif
 	
-	
+	public var isGeocoding: @Sendable () async -> Bool
+	public var reverseGeocodeLocation: @Sendable (Location) async throws -> Placemark
 }

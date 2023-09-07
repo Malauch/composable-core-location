@@ -16,8 +16,8 @@ public struct LocationClient {
 	public init(
 		authorizationStatus: @Sendable @escaping () async -> CLAuthorizationStatus,
 		continuation: @Sendable @escaping () async -> AsyncStream<Action>.Continuation?,
-		delegate: @MainActor @Sendable @escaping () async -> AsyncStream<Action>,
-		get: @Sendable @escaping () -> Properties,
+		delegate: @Sendable @escaping () async -> AsyncStream<Action>,
+		get: @Sendable @escaping () async -> Properties,
 		location: @Sendable @escaping () async -> Location?,
 		locationServicesEnabled: @Sendable @escaping () async -> Bool,
 		requestLocation: @Sendable @escaping () async -> Void,

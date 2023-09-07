@@ -50,6 +50,47 @@ public struct Location {
 	
 	public init(
 		altitude: CLLocationDistance = 0,
+		coordinate: Coordinate = Coordinate(latitude: 0, longitude: 0),
+		course: CLLocationDirection = 0,
+		horizontalAccuracy: CLLocationAccuracy = 0,
+		speed: CLLocationSpeed = 0,
+		timestamp: Date,
+		verticalAccuracy: CLLocationAccuracy = 0
+	) {
+		self.rawValue = CLLocation(
+			coordinate: coordinate.rawValue,
+			altitude: altitude,
+			horizontalAccuracy: horizontalAccuracy,
+			verticalAccuracy: verticalAccuracy,
+			course: course,
+			speed: speed,
+			timestamp: timestamp
+		)
+	}
+	
+	public init(
+		altitude: CLLocationDistance = 0,
+		coordinate: Coordinate = Coordinate(latitude: 0, longitude: 0),
+		course: CLLocationDirection = 0,
+		horizontalAccuracy: CLLocationAccuracy = 0,
+		speed: CLLocationSpeed = 0,
+		verticalAccuracy: CLLocationAccuracy = 0
+	) {
+		@Dependency(\.date) var date
+		
+		self = .init(
+			altitude: altitude,
+			coordinate: coordinate.rawValue,
+			course: course,
+			horizontalAccuracy: horizontalAccuracy,
+			speed: speed,
+			timestamp: date(),
+			verticalAccuracy: verticalAccuracy
+		)
+	}
+	
+	public init(
+		altitude: CLLocationDistance = 0,
 		latitude: Double = 0,
 		longitude: Double = 0,
 		course: CLLocationDirection = 0,
@@ -68,6 +109,7 @@ public struct Location {
 			timestamp: timestamp
 		)
 	}
+	
 	public init(
 		altitude: CLLocationDistance = 0,
 		latitude: Double = 0,
@@ -90,6 +132,7 @@ public struct Location {
 			verticalAccuracy: verticalAccuracy
 		)
 	}
+	
 
   public init(rawValue: CLLocation) {
     self.rawValue = rawValue

@@ -2,9 +2,10 @@ import CoreLocation
 import Foundation
 
 extension GeocoderClient {
-	public static let live: Self = {
+	public static var live: Self {
+		let geocoder = CLGeocoder()
+
 		let reverseGeocodeLocation: @Sendable (Location) async throws -> Placemark = { location in
-			let geocoder = CLGeocoder()
 			if let placemark = try await geocoder.reverseGeocodeLocation(location.rawValue).first {
 				return Placemark(rawValue: placemark)
 			} else {
@@ -15,7 +16,6 @@ extension GeocoderClient {
 		
 		#if os(visionOS)
 		let geocodeAddressString: @Sendable (String) async throws -> [Placemark] = { addressString in
-			let geocoder = CLGeocoder()
 			return try await geocoder.geocodeAddressString(
 				addressString
 			)
@@ -23,7 +23,6 @@ extension GeocoderClient {
 		}
 		#else
 		let geocodeAddressString: @Sendable (String, Region?, Locale?) async throws -> [Placemark] = { addressString, region, locale in
-			let geocoder = CLGeocoder()
 			return try await geocoder.geocodeAddressString(
 				addressString,
 				in: region?.rawValue,
@@ -33,10 +32,12 @@ extension GeocoderClient {
 		#endif
 		
 		return Self(
-			reverseGeocodeLocation: reverseGeocodeLocation,
-			geocodeAddressString: geocodeAddressString
+			cancelGeocoding: { geocoder.cancelGeocode() },
+			geocodeAddressString: geocodeAddressString,
+			isGeocoding: { geocoder.isGeocoding },
+			reverseGeocodeLocation: reverseGeocodeLocation
 		)
-	}()
+	}
 }
 
 extension GeocoderClient {

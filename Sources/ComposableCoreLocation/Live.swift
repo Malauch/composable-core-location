@@ -18,22 +18,24 @@ extension LocationClient {
   /// )
   /// ```
 
-	public static let live: Self = {
-		let manager = CLLocationManager()
+	public static var live: Self {
 		
     return Self(
       authorizationStatus: {
+				@Dependency(\.coreLocationManager) var manager
         #if (compiler(>=5.3) && !(os(macOS) || targetEnvironment(macCatalyst))) || compiler(>=5.3.1)
           if #available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, macCatalyst 14.0, *) {
-            return manager.authorizationStatus
+						return await manager.value.authorizationStatus
           }
         #endif
-        return manager.authorizationStatus
+				return await manager.value.authorizationStatus
       },
 			continuation: { nil },
 			// MARK: - Delegate definition
-      delegate: { @MainActor in
-				AsyncStream { continuation in
+      delegate: {
+				@Dependency(\.coreLocationManager) var managerIsolated
+				let manager = await managerIsolated.value
+				return AsyncStream { continuation in
 					let delegate = LocationManagerDelegate(continuation: continuation)
 					manager.delegate = delegate
 					continuation.onTermination = { [delegate] _ in
@@ -42,79 +44,86 @@ extension LocationClient {
 				}
 			},
 			get: {
+				@Dependency(\.coreLocationManager) var manager
 				var properties = Properties()
 				
 					#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
-					properties.activityType = manager.activityType
-					properties.allowsBackgroundLocationUpdates = manager.allowsBackgroundLocationUpdates
+					properties.activityType = await manager.value.activityType
+					properties.allowsBackgroundLocationUpdates = await manager.value.allowsBackgroundLocationUpdates
 					#endif
 
 					#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
-					properties.desiredAccuracy = manager.desiredAccuracy
-					properties.distanceFilter =	manager.distanceFilter
+					properties.desiredAccuracy = await manager.value.desiredAccuracy
+					properties.distanceFilter =	await manager.value.distanceFilter
 					#endif
 
 					#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
-					properties.headingFilter = manager.headingFilter
-					properties.headingOrientation =	manager.headingOrientation
+					properties.headingFilter = await manager.value.headingFilter
+					properties.headingOrientation =	await manager.value.headingOrientation
 					
 					#endif
 					#if os(iOS) || targetEnvironment(macCatalyst)
-					properties.pausesLocationUpdatesAutomatically = manager.pausesLocationUpdatesAutomatically
-					properties.showsBackgroundLocationIndicator = manager.showsBackgroundLocationIndicator
+					properties.pausesLocationUpdatesAutomatically = await manager.value.pausesLocationUpdatesAutomatically
+					properties.showsBackgroundLocationIndicator = await manager.value.showsBackgroundLocationIndicator
 					
 					#endif
 				
 				return properties
 			},
-      location: { manager.location.map(Location.init(rawValue:)) },
+			location: {
+				@Dependency(\.coreLocationManager) var manager
+				return await manager.value.location.map(Location.init(rawValue:))
+			},
 			locationServicesEnabled: { CLLocationManager.locationServicesEnabled() },
       requestLocation: {
-        manager.requestLocation()
+				@Dependency(\.coreLocationManager) var manager
+				await manager.value.requestLocation()
       },
       requestWhenInUseAuthorization: {
+				@Dependency(\.coreLocationManager) var manager
         #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-          manager.requestWhenInUseAuthorization()
+				await manager.value.requestWhenInUseAuthorization()
         #endif
       },
 			set: { properties in
+				@Dependency(\.coreLocationManager) var manager
 				#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
 				if let activityType = properties.activityType {
-					manager.activityType = activityType
+					await manager.value.activityType = activityType
 				}
 				if let allowsBackgroundLocationUpdates = properties.allowsBackgroundLocationUpdates {
-					manager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates
+					await manager.value.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates
 				}
 				#endif
 				#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
 				if let desiredAccuracy = properties.desiredAccuracy {
-					manager.desiredAccuracy = desiredAccuracy
+					await manager.value.desiredAccuracy = desiredAccuracy
 				}
 				if let distanceFilter = properties.distanceFilter {
-					manager.distanceFilter = distanceFilter
+					await manager.value.distanceFilter = distanceFilter
 				}
 				#endif
 				#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
 				if let headingFilter = properties.headingFilter {
-					manager.headingFilter = headingFilter
+					await manager.value.headingFilter = headingFilter
 				}
 				if let headingOrientation = properties.headingOrientation {
-					manager.headingOrientation = headingOrientation
+					await manager.value.headingOrientation = headingOrientation
 				}
 				#endif
 				#if os(iOS) || targetEnvironment(macCatalyst)
 				if let pausesLocationUpdatesAutomatically = properties
 					.pausesLocationUpdatesAutomatically
 				{
-					manager.pausesLocationUpdatesAutomatically = pausesLocationUpdatesAutomatically
+					await manager.value.pausesLocationUpdatesAutomatically = pausesLocationUpdatesAutomatically
 				}
 				if let showsBackgroundLocationIndicator = properties.showsBackgroundLocationIndicator {
-					manager.showsBackgroundLocationIndicator = showsBackgroundLocationIndicator
+					await manager.value.showsBackgroundLocationIndicator = showsBackgroundLocationIndicator
 				}
 				#endif
 			}
     )
-  }()
+  }
 }
 
 private final class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
@@ -139,14 +148,24 @@ private final class LocationManagerDelegate: NSObject, CLLocationManagerDelegate
 	
 }
 
-// Fileprivate `CLLocationManager` instance as a dependency to workaround the bug mentioned in line #20.
 extension CLLocationManager: DependencyKey {
-	public static var liveValue = CLLocationManager()
+	public static var liveValue: MainActorIsolated<CLLocationManager> = {
+		return MainActorIsolated(initialValue: { CLLocationManager() })
+	}()
 }
 
 fileprivate extension DependencyValues {
-	var coreLocationManager: CLLocationManager {
+	var coreLocationManager: MainActorIsolated<CLLocationManager> {
 		get { self[CLLocationManager.self] }
 		set { self[CLLocationManager.self] = newValue}
+	}
+}
+
+@MainActor
+public final class MainActorIsolated<Value>: Sendable {
+	public lazy var value: Value = initialValue()
+	private let initialValue: @MainActor () -> Value
+	nonisolated public init(initialValue: @MainActor @escaping () -> Value) {
+		self.initialValue = initialValue
 	}
 }

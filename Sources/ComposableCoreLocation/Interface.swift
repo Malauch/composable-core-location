@@ -19,6 +19,7 @@ public struct LocationClient {
 		delegate: @Sendable @escaping () async -> AsyncStream<Action>,
 		get: @Sendable @escaping () async -> Properties,
 		location: @Sendable @escaping () async -> Location?,
+		liveUpdates: @Sendable @escaping (CLLocationUpdate.LiveConfiguration) async -> AsyncThrowingStream<LocationUpdate, Error>,
 		locationServicesEnabled: @Sendable @escaping () async -> Bool,
 		requestLocation: @Sendable @escaping () async -> Void,
 		requestWhenInUseAuthorization: @Sendable @escaping () async -> Void,
@@ -29,6 +30,7 @@ public struct LocationClient {
 		self.delegate = delegate
 		self.get = get 
 		self.location = location
+		self.liveUpdates = liveUpdates
 		self.locationServicesEnabled = locationServicesEnabled
 		self.requestLocation = requestLocation
 		self.requestWhenInUseAuthorization = requestWhenInUseAuthorization
@@ -45,6 +47,10 @@ public struct LocationClient {
 	public var get: @Sendable () async -> Properties
 
   public var location: @Sendable () async -> Location?
+	
+	// TODO: Add avaibility flag for iOS 17+ and etc.
+	public var liveUpdates: @Sendable (CLLocationUpdate.LiveConfiguration) async ->  AsyncThrowingStream<LocationUpdate, Error>
+	
 	public var locationServicesEnabled: @Sendable () async -> Bool
 
   public var requestLocation: @Sendable () async -> Void
@@ -104,4 +110,9 @@ public struct LocationClient {
 			)
 		)
 	}
+	
+	@Sendable public func locationUpdates() async -> AsyncThrowingStream<LocationUpdate, Error> {
+		await self.liveUpdates(.default)
+	}
+	
 }

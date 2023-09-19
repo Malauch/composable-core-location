@@ -2,6 +2,7 @@ import Combine
 import CoreLocation
 import Dependencies
 
+
 extension LocationClient {
 	
   /// The live implementation of the `LocationManager` interface. This implementation is capable of
@@ -35,6 +36,8 @@ extension LocationClient {
       delegate: {
 				@Dependency(\.coreLocationManager) var managerIsolated
 				let manager = await managerIsolated.value
+				// Probably AsyncChannel is more correct here: https://github.com/apple/swift-async-algorithms/blob/main/Sources/AsyncAlgorithms/AsyncAlgorithms.docc/Guides/Channel.md
+				// Or other workaround is needed for situation when there are multiple subscribers.
 				return AsyncStream { continuation in
 					let delegate = LocationManagerDelegate(continuation: continuation)
 					manager.delegate = delegate
@@ -44,6 +47,7 @@ extension LocationClient {
 				}
 			},
 			get: {
+				// TODO: Add visionOS checks
 				@Dependency(\.coreLocationManager) var manager
 				var properties = Properties()
 				
@@ -52,7 +56,7 @@ extension LocationClient {
 					properties.allowsBackgroundLocationUpdates = await manager.value.allowsBackgroundLocationUpdates
 					#endif
 
-					#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
+					#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || os(visionOS) || targetEnvironment(macCatalyst)
 					properties.desiredAccuracy = await manager.value.desiredAccuracy
 					properties.distanceFilter =	await manager.value.distanceFilter
 					#endif
@@ -62,7 +66,7 @@ extension LocationClient {
 					properties.headingOrientation =	await manager.value.headingOrientation
 					
 					#endif
-					#if os(iOS) || targetEnvironment(macCatalyst)
+					#if os(iOS) || os(visionOS) || targetEnvironment(macCatalyst)
 					properties.pausesLocationUpdatesAutomatically = await manager.value.pausesLocationUpdatesAutomatically
 					properties.showsBackgroundLocationIndicator = await manager.value.showsBackgroundLocationIndicator
 					
@@ -74,6 +78,11 @@ extension LocationClient {
 				@Dependency(\.coreLocationManager) var manager
 				return await manager.value.location.map(Location.init(rawValue:))
 			},
+			liveUpdates: { configuration in
+				return CLLocationUpdate.liveUpdates(configuration)
+					.map(LocationUpdate.init(rawValue:))
+					.eraseToThrowingStream()
+			},
 			locationServicesEnabled: { CLLocationManager.locationServicesEnabled() },
       requestLocation: {
 				@Dependency(\.coreLocationManager) var manager
@@ -81,7 +90,7 @@ extension LocationClient {
       },
       requestWhenInUseAuthorization: {
 				@Dependency(\.coreLocationManager) var manager
-        #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+        #if os(iOS) || os(macOS) || os(watchOS) || os(visionOS) || targetEnvironment(macCatalyst)
 				await manager.value.requestWhenInUseAuthorization()
         #endif
       },
@@ -95,7 +104,7 @@ extension LocationClient {
 					await manager.value.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates
 				}
 				#endif
-				#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || targetEnvironment(macCatalyst)
+				#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS) || os(visionOS) || targetEnvironment(macCatalyst)
 				if let desiredAccuracy = properties.desiredAccuracy {
 					await manager.value.desiredAccuracy = desiredAccuracy
 				}
@@ -111,7 +120,7 @@ extension LocationClient {
 					await manager.value.headingOrientation = headingOrientation
 				}
 				#endif
-				#if os(iOS) || targetEnvironment(macCatalyst)
+				#if os(iOS) || os(visionOS) || targetEnvironment(macCatalyst)
 				if let pausesLocationUpdatesAutomatically = properties
 					.pausesLocationUpdatesAutomatically
 				{

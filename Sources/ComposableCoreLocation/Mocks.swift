@@ -16,6 +16,7 @@ extension LocationClient {
 			},
 			get: { Properties() },
 			location: { .mockFluid() },
+			liveUpdates: { _ in .never },  // Temporary `.never` but it's better to mock some location here
 			locationServicesEnabled: { true },
 			requestLocation: {
 				delegateContinuation.yield(.didUpdateLocations([.mockFluid()]))
@@ -43,6 +44,7 @@ extension LocationClient {
 			return locationClientStream
 		}
 		locationClient.location = { .mockFluid() }
+		locationClient.liveUpdates = { _ in .never } // Temporary `.never` but it's better to mock some location here
 		locationClient.locationServicesEnabled = { true }
 		locationClient.requestLocation = {
 			guard let continuation = await continuation.value

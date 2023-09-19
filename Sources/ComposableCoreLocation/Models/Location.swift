@@ -147,7 +147,7 @@ public struct Location {
 	}
 }
 
-// It's to fixed not describing propertis by customDump in The Composable Architecuture Tests.
+// It's to fixed not describing propertis by customDump in The Composable Architecture Tests.
 extension Location: CustomReflectable {
 	public var customMirror: Mirror {
 		

@@ -1,7 +1,7 @@
 import Combine
 import CoreLocation
 import Dependencies
-
+import OSLog
 
 extension LocationClient {
 	
@@ -20,35 +20,39 @@ extension LocationClient {
   /// ```
 
 	public static var live: Self {
+		let manager = MainActorIsolated(initialValue: { CLLocationManager() })
+		/// Task which is used as a suspension point for all endpoints which needs configured CLLocationManagerDelegate.
+		/// When delegate is configured, then this task is canceled and endpoints, which await it can continue execution.
+		///
+		/// This behaviour is useful for situation when starting observing delegate action stream and requesting location
+		/// is done in the same async effect.
+		let delegateIsReadyTask = LockIsolated(Task { try await Task.never() })
+		// Subject instead of stream because it support multiple subscribers. Which probably should be still avoided.
+		let subject = PassthroughSubject<LocationClient.Action, Never>()
 		
     return Self(
       authorizationStatus: {
-				@Dependency(\.coreLocationManager) var manager
-        #if (compiler(>=5.3) && !(os(macOS) || targetEnvironment(macCatalyst))) || compiler(>=5.3.1)
-          if #available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, macCatalyst 14.0, *) {
-						return await manager.value.authorizationStatus
-          }
-        #endif
 				return await manager.value.authorizationStatus
       },
 			continuation: { nil },
 			// MARK: - Delegate definition
       delegate: {
-				@Dependency(\.coreLocationManager) var managerIsolated
-				let manager = await managerIsolated.value
-				// Probably AsyncChannel is more correct here: https://github.com/apple/swift-async-algorithms/blob/main/Sources/AsyncAlgorithms/AsyncAlgorithms.docc/Guides/Channel.md
-				// Or other workaround is needed for situation when there are multiple subscribers.
-				return AsyncStream { continuation in
-					let delegate = LocationManagerDelegate(continuation: continuation)
-					manager.delegate = delegate
-					continuation.onTermination = { [delegate] _ in
-						_ = delegate
-					}
-				}
+				let delegate = LocationManagerDelegateSubject(subject: subject)
+				manager.value.delegate = delegate
+				delegateIsReadyTask.value.cancel()
+				
+				return subject
+					.handleEvents(
+						receiveCancel: {
+							delegateIsReadyTask.setValue(Task { try await Task.never() })
+							_ = delegate
+							_ = manager
+						}
+					)
+					.values
+					.eraseToStream()
 			},
 			get: {
-				// TODO: Add visionOS checks
-				@Dependency(\.coreLocationManager) var manager
 				var properties = Properties()
 				
 					#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
@@ -75,7 +79,6 @@ extension LocationClient {
 				return properties
 			},
 			location: {
-				@Dependency(\.coreLocationManager) var manager
 				return await manager.value.location.map(Location.init(rawValue:))
 			},
 			liveUpdates: { configuration in
@@ -85,17 +88,24 @@ extension LocationClient {
 			},
 			locationServicesEnabled: { CLLocationManager.locationServicesEnabled() },
       requestLocation: {
-				@Dependency(\.coreLocationManager) var manager
+				if !delegateIsReadyTask.value.isCancelled {
+					logger.warning("LocationClient.requestLocation called before delegate endpoint. Execution is suspended and will continue when delegate will be configured.")
+				}
+				try? await delegateIsReadyTask.value.value
+
 				await manager.value.requestLocation()
       },
       requestWhenInUseAuthorization: {
-				@Dependency(\.coreLocationManager) var manager
         #if os(iOS) || os(macOS) || os(watchOS) || os(visionOS) || targetEnvironment(macCatalyst)
 				await manager.value.requestWhenInUseAuthorization()
         #endif
       },
+			requestAlwaysAuthorization: {
+				#if os(iOS) || os(macOS) || os(watchOS) || os(visionOS) || targetEnvironment(macCatalyst)
+				await manager.value.requestAlwaysAuthorization()
+				#endif
+			},
 			set: { properties in
-				@Dependency(\.coreLocationManager) var manager
 				#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
 				if let activityType = properties.activityType {
 					await manager.value.activityType = activityType
@@ -157,24 +167,35 @@ private final class LocationManagerDelegate: NSObject, CLLocationManagerDelegate
 	
 }
 
-extension CLLocationManager: DependencyKey {
-	public static var liveValue: MainActorIsolated<CLLocationManager> = {
-		return MainActorIsolated(initialValue: { CLLocationManager() })
-	}()
-}
-
-fileprivate extension DependencyValues {
-	var coreLocationManager: MainActorIsolated<CLLocationManager> {
-		get { self[CLLocationManager.self] }
-		set { self[CLLocationManager.self] = newValue}
+private final class LocationManagerDelegateSubject: NSObject, CLLocationManagerDelegate {
+	let subject: PassthroughSubject<LocationClient.Action, Never>
+	
+	init(subject: PassthroughSubject<LocationClient.Action, Never>) {
+		self.subject = subject
 	}
+	
+	func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+		self.subject.send(.didChangeAuthorization)
+	}
+	
+	func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+		let error = CLError(_nsError: error as NSError)
+		self.subject.send(.didFailWithError(error))
+	}
+	
+	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+		self.subject.send(.didUpdateLocations(locations.map(Location.init(rawValue:))))
+	}
+	
 }
 
 @MainActor
-public final class MainActorIsolated<Value>: Sendable {
+final class MainActorIsolated<Value>: Sendable {
 	public lazy var value: Value = initialValue()
 	private let initialValue: @MainActor () -> Value
 	nonisolated public init(initialValue: @MainActor @escaping () -> Value) {
 		self.initialValue = initialValue
 	}
 }
+
+fileprivate let logger = Logger(subsystem: "composable-core-location", category: "Live client")

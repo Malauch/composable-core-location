@@ -16,12 +16,13 @@ extension LocationClient {
 			},
 			get: { Properties() },
 			location: { .mockFluid() },
-			liveUpdates: { _ in .never },  // Temporary `.never` but it's better to mock some location here
+			liveUpdates: { _ in .never },  // TODO: Now `.never` but it would be probably useful to mock few updates here.
 			locationServicesEnabled: { true },
 			requestLocation: {
 				delegateContinuation.yield(.didUpdateLocations([.mockFluid()]))
 			},
-			requestWhenInUseAuthorization: { },
+			requestWhenInUseAuthorization: { }, 
+			requestAlwaysAuthorization: { },
 			set: { _ in }
 		)
 		
@@ -55,6 +56,7 @@ extension LocationClient {
 			continuation.yield(.didUpdateLocations([.mockFluid()]))
 		}
 		locationClient.requestWhenInUseAuthorization = { }
+		locationClient.requestAlwaysAuthorization = { }
 		
 		return locationClient
 	}()

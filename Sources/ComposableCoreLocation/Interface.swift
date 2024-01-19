@@ -1,8 +1,10 @@
-import Combine
 import CoreLocation
+import Dependencies
+import DependenciesMacros
 
 /// A wrapper around Core Location's `CLLocationManager` that exposes its functionality through
 /// effects and actions, making it easy to use with the Composable Architecture and easy to test.
+@DependencyClient
 public struct LocationClient {
   /// Actions that correspond to `CLLocationManagerDelegate` methods.
   ///
@@ -13,51 +15,29 @@ public struct LocationClient {
     case didUpdateLocations([Location])
   }
 	
-	public init(
-		authorizationStatus: @Sendable @escaping () async -> CLAuthorizationStatus,
-		continuation: @Sendable @escaping () async -> AsyncStream<Action>.Continuation?,
-		delegate: @Sendable @escaping () async -> AsyncStream<Action>,
-		get: @Sendable @escaping () async -> Properties,
-		location: @Sendable @escaping () async -> Location?,
-		liveUpdates: @Sendable @escaping (CLLocationUpdate.LiveConfiguration) async -> AsyncThrowingStream<LocationUpdate, Error>,
-		locationServicesEnabled: @Sendable @escaping () async -> Bool,
-		requestLocation: @Sendable @escaping () async -> Void,
-		requestWhenInUseAuthorization: @Sendable @escaping () async -> Void,
-		set: @Sendable @escaping (Properties) async -> Void
-	) {
-		self.authorizationStatus = authorizationStatus
-		self.continuation = continuation
-		self.delegate = delegate
-		self.get = get 
-		self.location = location
-		self.liveUpdates = liveUpdates
-		self.locationServicesEnabled = locationServicesEnabled
-		self.requestLocation = requestLocation
-		self.requestWhenInUseAuthorization = requestWhenInUseAuthorization
-		self.set = set
-	}
-
-  public var authorizationStatus: @Sendable () async -> CLAuthorizationStatus
+	public var authorizationStatus: @Sendable () async -> CLAuthorizationStatus = { .notDetermined }
 	
 	public var continuation: @Sendable () async -> AsyncStream<Action>.Continuation?
 	
-	// MARK: - Delegate signature
-  public var delegate: @MainActor @Sendable () async -> AsyncStream<Action>
+	public var delegate: @MainActor @Sendable () async -> AsyncStream<Action> = { .never }
 	
-	public var get: @Sendable () async -> Properties
+	public var get: @Sendable () async -> Properties = { Properties() }
 
   public var location: @Sendable () async -> Location?
 	
 	// TODO: Add avaibility flag for iOS 17+ and etc.
-	public var liveUpdates: @Sendable (CLLocationUpdate.LiveConfiguration) async ->  AsyncThrowingStream<LocationUpdate, Error>
+	public var liveUpdates: @Sendable (CLLocationUpdate.LiveConfiguration) async ->  AsyncThrowingStream<LocationUpdate, Error> = { _ in .never }
 	
-	public var locationServicesEnabled: @Sendable () async -> Bool
+	public var locationServicesEnabled: @Sendable () async -> Bool = { false }
 
-  public var requestLocation: @Sendable () async -> Void
+	public var requestLocation: @Sendable () async -> Void
 
   public var requestWhenInUseAuthorization: @Sendable () async -> Void
 	
+	public var requestAlwaysAuthorization: @Sendable () async -> Void
+	
 	public var set: @MainActor @Sendable (Properties) async -> Void
+	
 	
 	/// Updates the given properties of a uniquely identified `CLLocationManager`.
 	@available(macOS, unavailable)
